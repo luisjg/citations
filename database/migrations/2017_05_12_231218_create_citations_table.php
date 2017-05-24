@@ -6,15 +6,12 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateCitationsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    
+  public function up()
     {
         Schema::create('citations',function(Blueprint $table) {
-            $table->string('publication_id')->primary();
+            $table->increments('id');
+            $table->string('publication_id');
             $table->string('type')->nullable();
             $table->string('doi')->nullable();
             $table->string('handle')->nullable();
@@ -28,7 +25,7 @@ class CreateCitationsTable extends Migration
             $table->integer('number')->nullable();
             $table->integer('volume')->nullable();
             $table->string('chapter')->nullable();
-            $table->integer('pages')->nullable();
+            $table->string('pages')->nullable();
             $table->string('institution')->nullable();
             $table->string('organization')->nullable();
             $table->string('publisher')->nullable();
@@ -49,6 +46,6 @@ class CreateCitationsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('table');
+        Schema::drop('citations');
     }
 }
