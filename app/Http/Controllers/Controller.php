@@ -2,18 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Laravel\Lumen\Routing\Controller as BaseController;
 
-use App\Handlers\HandlerUtilities;
 
 class Controller extends BaseController
-{
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-
-    /**
+{ /**
 	 * Sends the JSON response using the specified data array as well as the
 	 * desired HTTP response code.
 	 *
@@ -23,11 +16,11 @@ class Controller extends BaseController
 	 *
 	 * @return Response
 	 */
-	public function sendResponse($data, $code=200, $success=true) {
+	/*public function sendResponse($data, $code=200, $success=true) {
 		// log the request
 		HandlerUtilities::logResponse($data, $code, $success);
 
 		// return the response
 		return response($data, $code);
-	}
+	}*/
 }

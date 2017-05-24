@@ -16,22 +16,19 @@ class RegistryModel extends Model
      *
      * @var string
      */
-
-    protected $hidden = ['uid', 'entities_id', 'posix_uid' 'orcid_id','created_at', 'updated_at'];
+protected $hidden = ['uuid', 'entities_id', 'posix_uid','created_at', 'updated_at','orcid_id','registry_id'];
 
     public $incrementing = false;
+
+    //one individual is registered
+
 
      public function individual()
     {
         return $this->hasOne('App\Models\Individuals', 'individuals_id', 'individuals_id');
     }
 
-    public function registryid($entities_id)
-    {
-        return $query->where('parent_entities_id', $entities_id)
-                     ->where('role_position', '=' , 'member')
-                     ->get();
-    }
-
-
+    //getting individuals by email 
+    //
+   
 }
