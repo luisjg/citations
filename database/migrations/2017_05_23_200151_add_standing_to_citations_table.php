@@ -15,6 +15,7 @@ class AddStandingToCitationsTable extends Migration
     {
         Schema::table('citations', function (Blueprint $table) {
             $table->string('standing')->nullable();
+          
         });
     }
 
@@ -27,6 +28,7 @@ class AddStandingToCitationsTable extends Migration
     {
         Schema::table('citations', function (Blueprint $table) {
             $table->dropColumn('standing');
+             
         });
     }
 }
