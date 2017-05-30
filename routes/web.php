@@ -15,5 +15,7 @@ $app->get('/', function () use ($app) {
 });
 
 
+$app->get('test{email}','WebServiceController@getAllPublications');
+
 
 
