@@ -4,8 +4,89 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad8af3a630c5aaf41cb4c34e85f43c43",
+    "content-hash": "405d78ca51aab72afea4a4d745c65b27",
     "packages": [
+        {
+            "name": "csun-metalab/lumen-force-https",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/csun-metalab/lumen-force-https.git",
+                "reference": "cc9fb59dfaedafea4c623f199a4d8e8f22d75e11"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/csun-metalab/lumen-force-https/zipball/cc9fb59dfaedafea4c623f199a4d8e8f22d75e11",
+                "reference": "cc9fb59dfaedafea4c623f199a4d8e8f22d75e11",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/LumenForceHttps/"
+                ],
+                "psr-0": {
+                    "CSUNMetaLab\\LumenForceHttps\\": "src/LumenForceHttps/"
+                },
+                "psr-4": {
+                    "CSUNMetaLab\\LumenForceHttps\\": "src/LumenForceHttps/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matthew Fritz",
+                    "email": "mattf@burbankparanormal.com"
+                }
+            ],
+            "description": "A small Composer package for Lumen that forces HTTPS in the URL via middleware",
+            "time": "2018-01-30T22:43:10+00:00"
+        },
+        {
+            "name": "csun-metalab/lumen-proxypass",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/csun-metalab/lumen-proxypass.git",
+                "reference": "47f4458b0f298d6fd175e4091b684776846698d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/csun-metalab/lumen-proxypass/zipball/47f4458b0f298d6fd175e4091b684776846698d2",
+                "reference": "47f4458b0f298d6fd175e4091b684776846698d2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/LumenProxyPass/"
+                ],
+                "psr-0": {
+                    "CSUNMetaLab\\LumenProxyPass\\": "src/LumenProxyPass/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matthew Fritz",
+                    "email": "mattf@burbankparanormal.com"
+                }
+            ],
+            "description": "Composer package for Lumen that resolves the correct absolute URLs when behind a proxy",
+            "time": "2017-11-08T19:22:35+00:00"
+        },
         {
             "name": "doctrine/inflector",
             "version": "v1.3.0",

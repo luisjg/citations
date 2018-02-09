@@ -7,7 +7,9 @@
     "require": {
         "php": ">=7.1.3",
         "laravel/lumen-framework": "5.6.*",
-        "vlucas/phpdotenv": "~2.2"
+        "vlucas/phpdotenv": "~2.2",
+        "csun-metalab/lumen-proxypass": "^1.1",
+        "csun-metalab/lumen-force-https": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

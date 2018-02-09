@@ -11,6 +11,7 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+$router->group(['prefix' => '1.0'], function () use ($router) {
+    $router->get('citations', 'CitationsController@index')
+    	->name('citations.index');
 });
