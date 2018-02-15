@@ -12,6 +12,12 @@
 */
 
 $router->group(['prefix' => '1.0'], function () use ($router) {
-    $router->get('citations', 'CitationsController@index')
-    	->name('citations.index');
+	$router->get('citations/{id:[0-9]+}', [
+    	'as' => 'citations.show',
+    	'uses' => 'CitationsController@show'
+    ]);
+    $router->get('citations[/{type}]', [
+    	'as' => 'citations.index',
+    	'uses' => 'CitationsController@index'
+    ]);
 });
