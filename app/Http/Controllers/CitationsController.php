@@ -49,7 +49,16 @@ class CitationsController extends Controller
             $email = $request->input('email');
             $user = User::whereEmail($email)->first(); // intentionally not findOrFail()
             $citations = $citations->whereHas('members', function($q) use ($user) {
-                $q->where('user_id', $user->user_id);
+                if(!empty($user)) {
+                    $q->where('user_id', $user->user_id);
+                }
+                else
+                {
+                    // there should never be a NULL record retrieved by the
+                    // members relationship so this will effectively clear out
+                    // the set of data retrieved by the query
+                    $q->whereNull('user_id');
+                }
             });
         }
 
