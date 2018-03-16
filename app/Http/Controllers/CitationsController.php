@@ -83,4 +83,20 @@ class CitationsController extends Controller
         // generate the response and send everything back
         return generateCollectionResponse($type, $citation);
     }
+
+    /**
+     * Processes a citation creation request.
+     *
+     * @param Request $request The request to process
+     * @return Response
+     */
+    public function store(Request $request) {
+        $this->validate($request, [
+            'type' => 'required|in:article,book,chapter,thesis',
+            'metadata.title' => 'required',
+            'published_metadata.date' => 'required',
+            'members.*.user_id' => 'required',
+            'members.*.precedence' => 'required',
+        ]);
+    }
 }
