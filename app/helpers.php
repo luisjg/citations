@@ -5,12 +5,12 @@
  * optional response code and optional success value.
  *
  * @param string $message Some kind of static message
- * @param int $code Optional response code (defaults to 404)
- * @param bool $success Optional success value (defaults to false)
+ * @param int $code Optional response code (defaults to 200)
+ * @param bool $success Optional success value (defaults to true)
  *
  * @return array
  */
-function generateMessageResponse($message, $code=200, $success=false) {
+function generateMessageResponse($message, $code=200, $success=true) {
 	return [
 		"status" => "$code",
 		"success" => ($success ? "true" : "false"),

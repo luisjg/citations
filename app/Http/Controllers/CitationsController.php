@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Citation;
 use App\User;
 
+use DB;
+use Log;
+
 class CitationsController extends Controller
 {
     /**
@@ -85,7 +88,7 @@ class CitationsController extends Controller
     }
 
     /**
-     * Processes a citation creation request.
+     * Processes a citation creation request. The data is expected to be JSON.
      *
      * @param Request $request The request to process
      * @return Response
@@ -98,5 +101,66 @@ class CitationsController extends Controller
             'members.*.user_id' => 'required',
             'members.*.precedence' => 'required',
         ]);
+
+        // process the request as a transaction; we are doing the transaction
+        // within a try...catch so we can customize how the error response is
+        // returned when it fails via an exception
+        try
+        {
+            DB::beginTransaction();
+
+            // grab the next auto-incrementing ID
+            $nextId = 1;
+            $latestCitation = Citation::orderBy('id', 'DESC')->first();
+            if(!empty($latestCitation)) {
+                $nextId = $latestCitation->id + 1;
+            }
+
+            // create the citation object before we start attaching stuff to it
+            $citation = Citation::create([
+                'citation_id' => "citations:{$nextId}",
+                'citation_type' => $request->input('type'),
+                'collaborators' => $request->input('collaborators'),
+                'citation_text' => $request->input('citation_text'),
+                'note' => $request->input('note'),
+            ]);
+
+            // create the metadata for the citation
+            $citation->metadata()->create([
+                'title' => $request->input('metadata.title'),
+                'abstract' => $request->input('metadata.abstract'),
+                'book_title' => $request->input('metadata.book_title'),
+                'journal' => $request->input('metadata.journal'),
+            ]);
+
+            // create the published metadata
+            $citation->publishedMetadata()->create([
+                'how' => $request->input('published_metadata.how'),
+                'date' => $request->input('published_metadata.date'),
+            ]);
+
+            // attach the set of associated individuals
+            $people = [];
+            $members = $request->input('members');
+            foreach($members as $member) {
+                $people[$member['user_id']] = [
+                    'role_position' => 'author',
+                    'precedence' => $member['precedence'],
+                ];
+            }
+            $citation->members()->attach($people);
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            Log::error('Could not create citation: ' . $e->getMessage());
+            return generateErrorResponse(
+                'The citation could not be created', 500, false
+            );
+        }
+
+        // return the success response
+        return generateMessageResponse('The citation has been added successfully');
     }
 }
