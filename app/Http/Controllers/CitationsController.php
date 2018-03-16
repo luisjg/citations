@@ -101,13 +101,20 @@ class CitationsController extends Controller
             throw new InvalidPayloadTypeException();
         }
 
+        // define the JSON sub-object keys
+        $metaKey = "metadata";
+        $pubMetaKey = "published_metadata";
+        $membersKey = "members";
+        $docKey = "document";
+        $pubKey = "publisher";
+
         // now we need to validate the minimum data in the payload
         $this->validate($request, [
             'type' => 'required|in:article,book,chapter,thesis',
-            'metadata.title' => 'required',
-            'published_metadata.date' => 'required',
-            'members.*.user_id' => 'required',
-            'members.*.precedence' => 'required',
+            "{$metaKey}.title" => 'required',
+            "{$pubMetaKey}.date" => 'required',
+            "{$membersKey}.*.user_id" => 'required',
+            "{$membersKey}.*.precedence" => 'required',
         ]);
 
         // process the request as a transaction; we are doing the transaction
@@ -135,21 +142,21 @@ class CitationsController extends Controller
 
             // create the metadata for the citation
             $citation->metadata()->create([
-                'title' => $request->input('metadata.title'),
-                'abstract' => $request->input('metadata.abstract'),
-                'book_title' => $request->input('metadata.book_title'),
-                'journal' => $request->input('metadata.journal'),
+                'title' => $request->input("{$metaKey}.title"),
+                'abstract' => $request->input("{$metaKey}.abstract"),
+                'book_title' => $request->input("{$metaKey}.book_title"),
+                'journal' => $request->input("{$metaKey}.journal"),
             ]);
 
             // create the published metadata
             $citation->publishedMetadata()->create([
-                'how' => $request->input('published_metadata.how'),
-                'date' => $request->input('published_metadata.date'),
+                'how' => $request->input("{$pubMetaKey}.how"),
+                'date' => $request->input("{$pubMetaKey}.date"),
             ]);
 
             // attach the set of associated individuals
             $people = [];
-            $members = $request->input('members');
+            $members = $request->input($membersKey);
             foreach($members as $member) {
                 $people[$member['user_id']] = [
                     'role_position' => 'author',
@@ -157,6 +164,26 @@ class CitationsController extends Controller
                 ];
             }
             $citation->members()->attach($people);
+
+            // create the document data if it exists
+            if($request->filled($docKey)) {
+                $citation->document()->create([
+                    'doi' => $request->input("{$docKey}.doi"),
+                    'handle' => $request->input("{$docKey}.handle"),
+                    'url' => $request->input("{$docKey}.url"),
+                ]);
+            }
+
+            // create the publisher data if it exists
+            if($request->filled($pubKey)) {
+                $citation->publisher()->create([
+                    'institution' => $request->input("{$pubKey}.institution"),
+                    'organization' => $request->input("{$pubKey}.organization"),
+                    'publisher' => $request->input("{$pubKey}.publisher"),
+                    'school' => $request->input("{$pubKey}.school"),
+                    'address' => $request->input("{$pubKey}.address"),
+                ]);
+            }
 
             DB::commit();
         }
