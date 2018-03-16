@@ -113,6 +113,7 @@ class CitationsController extends Controller
             'type' => 'required|in:article,book,chapter,thesis',
             "{$metaKey}.title" => 'required',
             "{$pubMetaKey}.date" => 'required',
+            "{$membersKey}" => 'required|array|min:1',
             "{$membersKey}.*.user_id" => 'required',
             "{$membersKey}.*.precedence" => 'required',
         ]);
