@@ -105,6 +105,7 @@ class CitationsController extends Controller
         $membersKey = "members";
         $docKey = "document";
         $pubKey = "publisher";
+        $collKey = "collection";
 
         // now we need to validate the minimum data in the payload
         $this->validate($request, [
@@ -181,6 +182,18 @@ class CitationsController extends Controller
                     'publisher' => $request->input("{$pubKey}.publisher"),
                     'school' => $request->input("{$pubKey}.school"),
                     'address' => $request->input("{$pubKey}.address"),
+                ]);
+            }
+
+            // create the collection data if it exists
+            if($request->filled($collKey)) {
+                $citation->collection()->create([
+                    'edition' => $request->input("{$collKey}.edition"),
+                    'series' => $request->input("{$collKey}.series"),
+                    'number' => $request->input("{$collKey}.number"),
+                    'volume' => $request->input("{$collKey}.volume"),
+                    'chapter' => $request->input("{$collKey}.chapter"),
+                    'pages' => $request->input("{$collKey}.pages"),
                 ]);
             }
 
