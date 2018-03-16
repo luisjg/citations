@@ -53,7 +53,7 @@ function generateCollectionResponse($collectionType, $data, $code=200, $success=
 		"api" => "citations",
 		"version" => "1.0",
 		"collection" => $collectionType,
-		"count" => ($isCollection ? $data->count() : 1),
+		"count" => "" . ($isCollection ? $data->count() : 1),
 		$collectionType => $data,
 	];
 
@@ -85,7 +85,7 @@ function fixCitationAttributes(&$citation) {
 	foreach($citation['members'] as &$member) {
 		$member['profile'] = (!empty($member['facultyUrl'])
 			? $member['facultyUrl']['url'] : null);
-		$member['precedence'] = $member['pivot']['precedence'];
+		$member['precedence'] = "" . $member['pivot']['precedence'];
 
 		// unset the pivot and facultyUrl object for the member
 		unset($member['pivot']);
