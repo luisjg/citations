@@ -97,9 +97,7 @@ class CitationsController extends Controller
      */
     public function store(Request $request) {
         // ensure this is a JSON request
-        if(!$request->isJson()) {
-            throw new InvalidPayloadTypeException();
-        }
+        $this->checkRequestTypeJson($request);
 
         // define the JSON sub-object keys
         $metaKey = "metadata";
@@ -198,5 +196,22 @@ class CitationsController extends Controller
 
         // return the success response
         return generateMessageResponse('The citation has been added successfully');
+    }
+
+    /**
+     * Checks that the request instance is a JSON request. Throws an exception
+     * if the request is not a JSON request. Returns true otherwise.
+     *
+     * @param Request $request The request to check
+     *
+     * @return bool
+     * @throws InvalidPayloadTypeException
+     */
+    protected function checkRequestTypeJson(Request $request) {
+        if(!$request->isJson()) {
+            throw new InvalidPayloadTypeException();
+        }
+
+        return true;
     }
 }
