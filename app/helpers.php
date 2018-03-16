@@ -1,6 +1,26 @@
 <?php
 
 /**
+ * Generates a response array based upon a given static message as well as an
+ * optional response code and optional success value.
+ *
+ * @param string $message Some kind of static message
+ * @param int $code Optional response code (defaults to 404)
+ * @param bool $success Optional success value (defaults to false)
+ *
+ * @return array
+ */
+function generateMessageResponse($message, $code=200, $success=false) {
+	return [
+		"status" => "$code",
+		"success" => ($success ? "true" : "false"),
+		"api" => "citations",
+		"version" => "1.0",
+		"message" => $message
+	];
+}
+
+/**
  * Generates a response array based upon a given error message as well as an
  * optional response code and optional success value.
  *
@@ -11,13 +31,7 @@
  * @return array
  */
 function generateErrorResponse($message, $code=404, $success=false) {
-	return [
-		"status" => "$code",
-		"success" => ($success ? "true" : "false"),
-		"api" => "citations",
-		"version" => "1.0",
-		"message" => $message
-	];
+	return generateMessageResponse($message, $code, $success);
 }
 
 /**
