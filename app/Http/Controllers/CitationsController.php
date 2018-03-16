@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Citation;
 use App\User;
 
+use App\Exceptions\InvalidPayloadTypeException;
+
 use DB;
 use Log;
 
@@ -94,6 +96,12 @@ class CitationsController extends Controller
      * @return Response
      */
     public function store(Request $request) {
+        // ensure this is a JSON request
+        if(!$request->isJson()) {
+            throw new InvalidPayloadTypeException();
+        }
+
+        // now we need to validate the minimum data in the payload
         $this->validate($request, [
             'type' => 'required|in:article,book,chapter,thesis',
             'metadata.title' => 'required',
