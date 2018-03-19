@@ -94,7 +94,8 @@ class CitationsController extends Controller
     /**
      * Deletes either a single citation or deletes all citations for a given
      * email address. Throws an exception if both the citation ID and the email
-     * query parameter are empty.
+     * query parameter are empty or both are filled. Throws another exception
+     * if there are no citations to delete.
      *
      * @param Request $request The request to check for an email address
      * @param int $id The optional ID of the citation that will be deleted
@@ -103,7 +104,7 @@ class CitationsController extends Controller
      * @throws InvalidRequestException
      * @throws NoDataException
      */
-    public function delete(Request $request, $id=null) {
+    public function destroy(Request $request, $id=null) {
         if(empty($id) && !$request->filled('email')) {
             // the route was accessed with no parameter, no email, and directly
             // via the DELETE method so throw an exception
@@ -156,8 +157,45 @@ class CitationsController extends Controller
 
         // we're going to delete the citations in a specific way to prevent the
         // need to do a separate database call per citation in the case that we
-        // are destroying a set of citations
-        $citationIds = [];
+        // are destroying a set of citations; we will have the same number of
+        // database calls regardless of the number of citations being destroyed
+        try {
+            DB::beginTransaction();
+
+            // delete the various related data in the reverse order of their creation;
+            // we associate the models with their PK that stores the citation ID
+            $citationPK = "citation_id";
+            $ns = "App\\"; // model namespace
+            $models = [
+                'Collection' => $citationPK,
+                'Publisher' => $citationPK,
+                'Document' => $citationPK,
+                'CitationMember' => 'parent_entities_id',
+                'PublishedMetadata' => $citationPK,
+                'CitationMetadata' => $citationPK,
+                'Citation' => $citationPK,
+            ];
+
+            // generate the full model namespace for each model and then delete
+            // all matching data based on the set of citation IDs
+            foreach($models as $modelName => $pk) {
+                $model = "{$ns}{$modelName}";
+                $model::whereIn($pk, $citationIds)->delete();
+            }
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            Log::error('Could not delete citation(s): [' .
+                implode(",", $citationIds) . "]. " . $e->getMessage());
+            return generateErrorResponse('The citation(s) could not be deleted', 500);
+        }
+
+        // return the success response
+        return generateMessageResponse(
+            count($citationIds) . " citation(s) were deleted successfully!"
+        );
     }
 
     /**

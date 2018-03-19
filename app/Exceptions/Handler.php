@@ -26,6 +26,9 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+        InvalidPayloadTypeException::class,
+        InvalidRequestException::class,
+        NoDataException::class,
     ];
 
     /**
