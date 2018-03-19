@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use App\Exceptions\InvalidPayloadTypeException;
 use App\Exceptions\InvalidRequestException;
+use App\Exceptions\NoDataException;
 
 class Handler extends ExceptionHandler
 {
@@ -71,6 +72,12 @@ class Handler extends ExceptionHandler
                 $e->getMessage(),
                 400
             ), 400);
+        }
+        else if($e instanceof NoDataException) {
+            return response(generateErrorResponse(
+                $e->getMessage(),
+                404
+            ), 404);
         }
 
         return parent::render($request, $e);

@@ -9,6 +9,7 @@ use App\User;
 
 use App\Exceptions\InvalidPayloadTypeException;
 use App\Exceptions\InvalidRequestException;
+use App\Exceptions\NoDataException;
 
 use DB;
 use Log;
@@ -100,6 +101,7 @@ class CitationsController extends Controller
      *
      * @return Response
      * @throws InvalidRequestException
+     * @throws NoDataExpection
      */
     public function delete(Request $request, $id=null) {
         if(empty($id) && !$request->filled('email')) {
@@ -118,6 +120,44 @@ class CitationsController extends Controller
                 "You may only specify either a citation ID or an email address, not both."
             );
         }
+
+        // now that our sanity checks are done we can process the actual request
+        // by retrieving the citation (or set of citations) in a specific way
+        $citationIds = [];
+        if(!empty($id)) {
+            $citation = Citation::wherePartialId($id)->first();
+            $citationIds[] = $citation->citation_id;
+        }
+        else
+        {
+            // set of citations by user email
+            $email = $request->input('email');
+            $user = User::where('email', $email)->first();
+            if(empty($user)) {
+                throw new InvalidRequestException(
+                    "The individual with that email address does not exist."
+                );
+            }
+
+            // resolve the collection based on the ID of the user
+            $citation = Citation::whereHas('members', function($q) use ($user) {
+                return $q->where('individuals_id', $user->user_id);
+            })->get();
+
+            $citationIds = $citation->pluck('citation_id');
+        }
+
+        // make sure we have citations
+        if(empty($citationIds)) {
+            throw new NoDataException(
+                "No matching citation(s) to delete."
+            );
+        }
+
+        // we're going to delete the citations in a specific way to prevent the
+        // need to do a separate database call per citation in the case that we
+        // are destroying a set of citations
+        $citationIds = [];
     }
 
     /**
