@@ -101,7 +101,7 @@ class CitationsController extends Controller
      *
      * @return Response
      * @throws InvalidRequestException
-     * @throws NoDataExpection
+     * @throws NoDataException
      */
     public function delete(Request $request, $id=null) {
         if(empty($id) && !$request->filled('email')) {
