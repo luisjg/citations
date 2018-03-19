@@ -133,7 +133,7 @@ class CitationsController extends Controller
             $email = $request->input('email');
             $user = User::where('email', $email)->first();
             if(empty($user)) {
-                throw new InvalidRequestException(
+                throw new NoDataException(
                     "The individual with that email address does not exist."
                 );
             }
