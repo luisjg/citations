@@ -125,10 +125,7 @@ class CitationsController extends Controller
         // now that our sanity checks are done we can process the actual request
         // by retrieving the citation (or set of citations) in a specific way
         if(!empty($id)) {
-            // the get() is intentional here; we are not using a first(), even
-            // though it's a single instance, because we want to generate a
-            // Collection instance so we can do the pluck() further down
-            $citation = Citation::wherePartialId($id)->get();
+            $citations = Citation::wherePartialId($id);
         }
         else
         {
@@ -142,12 +139,14 @@ class CitationsController extends Controller
             }
 
             // resolve the collection based on the ID of the user
-            $citation = Citation::whereHas('members', function($q) use ($user) {
+            $citations = Citation::whereHas('members', function($q) use ($user) {
                 return $q->whereMembersId($user->user_id);
-            })->get();
+            });
         }
 
-        $citationIds = $citation->pluck('citation_id');
+        // the get() is intentional even for a single instance because we want
+        // to resolve a Collection so we can use pluck()
+        $citationIds = $citations->get()->pluck('citation_id');
 
         // make sure we have citations
         if(empty($citationIds)) {
