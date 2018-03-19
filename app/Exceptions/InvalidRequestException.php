@@ -11,10 +11,6 @@ class InvalidRequestException extends Exception
 	 * @param string $message Optional message for the exception
 	 */
 	public function __construct($message="") {
-		if(!empty($message)) {
-			// add a leading space if there is something in the parameter
-			$message = " {$message}";
-		}
-		parent::__construct("Request incorrectly formed." . $message);
+		parent::__construct($message);
 	}
 }
