@@ -109,6 +109,15 @@ class CitationsController extends Controller
                 "Please specify either a citation ID or an email address."
             );
         }
+        else if(!empty($id) && $request->filled('email')) {
+            // specifying BOTH an ID and an email address is also a problem
+            // since the idea behind the method is not to handle both cases
+            // at the same time since it could result in a confusing response
+            // to the consuming client
+            throw new InvalidRequestException(
+                "You may only specify either a citation ID or an email address, not both."
+            );
+        }
     }
 
     /**
