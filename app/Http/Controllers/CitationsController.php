@@ -146,7 +146,7 @@ class CitationsController extends Controller
 
         // the get() is intentional even for a single instance because we want
         // to resolve a Collection so we can use pluck()
-        $citationIds = $citations->get()->pluck('citation_id');
+        $citationIds = $citations->get()->pluck('citation_id')->toArray();
 
         // make sure we have citations
         if(empty($citationIds)) {
