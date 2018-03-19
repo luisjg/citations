@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use App\Citation;
 use App\User;
 
+use App\Exceptions\InvalidPayloadTypeException;
+
+use DB;
+use Log;
+
 class CitationsController extends Controller
 {
     /**
