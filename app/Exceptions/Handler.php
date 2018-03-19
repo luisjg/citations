@@ -10,6 +10,8 @@ use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+use App\Exceptions\InvalidPayloadTypeException;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -58,8 +60,15 @@ class Handler extends ExceptionHandler
         }
         else if($e instanceof HttpException) {
             return response(generateErrorResponse(
-                "An unknown error has occurred"
+                "An unknown error has occurred",
+                500
             ), 500);
+        }
+        else if($e instanceof InvalidPayloadTypeException) {
+            return response(generateErrorResponse(
+                $e->getMessage() . " Please ensure your Content-Type header is set to application/json.",
+                400
+            ), 400);
         }
 
         return parent::render($request, $e);

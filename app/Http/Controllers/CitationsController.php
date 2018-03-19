@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use App\Citation;
 use App\User;
 
+use App\Exceptions\InvalidPayloadTypeException;
+
+use DB;
+use Log;
+
 class CitationsController extends Controller
 {
     /**
@@ -82,5 +87,22 @@ class CitationsController extends Controller
 
         // generate the response and send everything back
         return generateCollectionResponse($type, $citation);
+    }
+
+    /**
+     * Checks that the request instance is a JSON request. Throws an exception
+     * if the request is not a JSON request. Returns true otherwise.
+     *
+     * @param Request $request The request to check
+     *
+     * @return bool
+     * @throws InvalidPayloadTypeException
+     */
+    protected function checkRequestTypeJson(Request $request) {
+        if(!$request->isJson()) {
+            throw new InvalidPayloadTypeException();
+        }
+
+        return true;
     }
 }
