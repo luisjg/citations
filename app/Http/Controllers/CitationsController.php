@@ -202,7 +202,7 @@ class CitationsController extends Controller
      * Checks that the request instance is a JSON request. Throws an exception
      * if the request is not a JSON request. Returns true otherwise.
      *
-     * @param Request $request The request to check for an email address
+     * @param Request $request The request to check
      *
      * @return bool
      * @throws InvalidPayloadTypeException
