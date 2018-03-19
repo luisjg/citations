@@ -1,6 +1,26 @@
 <?php
 
 /**
+ * Generates a response array based upon a given static message as well as an
+ * optional response code and optional success value.
+ *
+ * @param string $message Some kind of static message
+ * @param int $code Optional response code (defaults to 200)
+ * @param bool $success Optional success value (defaults to true)
+ *
+ * @return array
+ */
+function generateMessageResponse($message, $code=200, $success=true) {
+	return [
+		"status" => "$code",
+		"success" => ($success ? "true" : "false"),
+		"api" => "citations",
+		"version" => "1.0",
+		"message" => $message
+	];
+}
+
+/**
  * Generates a response array based upon a given error message as well as an
  * optional response code and optional success value.
  *
@@ -11,13 +31,7 @@
  * @return array
  */
 function generateErrorResponse($message, $code=404, $success=false) {
-	return [
-		"status" => "$code",
-		"success" => ($success ? "true" : "false"),
-		"api" => "citations",
-		"version" => "1.0",
-		"message" => $message
-	];
+	return generateMessageResponse($message, $code, $success);
 }
 
 /**
@@ -39,7 +53,7 @@ function generateCollectionResponse($collectionType, $data, $code=200, $success=
 		"api" => "citations",
 		"version" => "1.0",
 		"collection" => $collectionType,
-		"count" => ($isCollection ? $data->count() : 1),
+		"count" => "" . ($isCollection ? $data->count() : 1),
 		$collectionType => $data,
 	];
 
@@ -71,7 +85,7 @@ function fixCitationAttributes(&$citation) {
 	foreach($citation['members'] as &$member) {
 		$member['profile'] = (!empty($member['facultyUrl'])
 			? $member['facultyUrl']['url'] : null);
-		$member['precedence'] = $member['pivot']['precedence'];
+		$member['precedence'] = "" . $member['pivot']['precedence'];
 
 		// unset the pivot and facultyUrl object for the member
 		unset($member['pivot']);
