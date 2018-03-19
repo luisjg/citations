@@ -8,6 +8,7 @@ use App\Citation;
 use App\User;
 
 use App\Exceptions\InvalidPayloadTypeException;
+use App\Exceptions\InvalidRequestException;
 
 use DB;
 use Log;
@@ -90,17 +91,40 @@ class CitationsController extends Controller
     }
 
     /**
+     * Deletes either a single citation or deletes all citations for a given
+     * email address. Throws an exception if both the citation ID and the email
+     * query parameter are empty.
+     *
+     * @param Request $request The request to check for an email address
+     * @param int $id The optional ID of the citation that will be deleted
+     *
+     * @return Response
+     * @throws InvalidRequestException
+     */
+    public function delete(Request $request, $id=null) {
+        if(empty($id) && !$request->filled('email')) {
+            // the route was accessed with no parameter, no email, and directly
+            // via the DELETE method so throw an exception
+            throw new InvalidRequestException(
+                "Please specify either a citation ID or an email address."
+            );
+        }
+    }
+
+    /**
      * Checks that the request instance is a JSON request. Throws an exception
      * if the request is not a JSON request. Returns true otherwise.
      *
-     * @param Request $request The request to check
+     * @param Request $request The request to check for an email address
      *
      * @return bool
      * @throws InvalidPayloadTypeException
      */
     protected function checkRequestTypeJson(Request $request) {
         if(!$request->isJson()) {
-            throw new InvalidPayloadTypeException();
+            throw new InvalidPayloadTypeException(
+                "Please ensure your Content-Type header is set to application/json."
+            );
         }
 
         return true;
