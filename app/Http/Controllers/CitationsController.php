@@ -128,6 +128,13 @@ class CitationsController extends Controller
                 'citations' => 'array'
             ]);
         }
+        else
+        {
+            // we received nothing to work with, so treat it as a bad request
+            throw new InvalidRequestException(
+                "Please specify either a citation ID, an email address, or an array of citation IDs."
+            );
+        }
 
         // PK column that represents the textual IDs of the citations
         $citationPK = "citation_id";
