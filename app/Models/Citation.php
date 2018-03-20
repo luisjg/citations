@@ -11,7 +11,7 @@ class Citation extends Model
 	public $incrementing = false;
 
 	protected $hidden = ['id', 'citation_type', 'created_at', 'updated_at'];
-	protected $appends = ['type'];
+	protected $appends = ['type', 'published'];
 
 	public function metadata() {
 		return $this->hasOne('App\CitationMetadata', 'citation_id');
@@ -50,6 +50,27 @@ class Citation extends Model
 	 */
 	public function getTypeAttribute() {
 		return $this->citation_type;
+	}
+
+	/**
+	 * Returns whether the citation can be considered to have been published.
+	 * Essentially, if any of the requisite document attributes have been
+	 * filled, this citation can be shown publicly.
+	 *
+	 * @return bool
+	 */
+	public function getPublishedAttribute() {
+		if(empty($this->document)) {
+			return false;
+		}
+
+		$doi = trim($this->document->doi);
+		$handle = trim($this->document->handle);
+		$url = trim($this->document->url);
+
+		// if any of the document attributes are filled, we can consider this
+		// citation to be published
+		return (!empty($doi) || !empty($handle) || !empty($url));
 	}
 
 	/**
