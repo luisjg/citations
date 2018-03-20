@@ -11,7 +11,7 @@ class Citation extends Model
 	public $incrementing = false;
 
 	protected $hidden = ['id', 'citation_type', 'created_at', 'updated_at'];
-	protected $appends = ['type', 'published'];
+	protected $appends = ['type'];
 
 	public function metadata() {
 		return $this->hasOne('App\CitationMetadata', 'citation_id');
@@ -59,7 +59,7 @@ class Citation extends Model
 	 *
 	 * @return bool
 	 */
-	public function getPublishedAttribute() {
+	public function getIsPublishedAttribute() {
 		if(empty($this->document)) {
 			return false;
 		}

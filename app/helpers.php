@@ -98,5 +98,8 @@ function fixCitationAttributes(&$citation) {
 	];
 	unset($citation['members']);
 
+	// turn the isPublished boolean attribute into a string
+	$citation['published'] = ($citation['isPublished'] ? "true" : "false");
+
 	return $citation;
 }
