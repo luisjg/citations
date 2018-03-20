@@ -59,7 +59,7 @@ class Citation extends Model
 	 *
 	 * @return bool
 	 */
-	public function getIsPublishedAttribute() {
+	public function getWasPublishedAttribute() {
 		if(empty($this->document)) {
 			return false;
 		}
