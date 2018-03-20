@@ -102,7 +102,7 @@ function fixCitationAttributes(&$citation) {
 	$citation['published'] = $citation['publishedMetadata'];
 	unset($citation['publishedMetadata']);
 
-	// turn the isPublished boolean attribute into a string
+	// turn the wasPublished boolean attribute into a string
 	$citation['is_published'] = ($citation['wasPublished'] ? "true" : "false");
 
 	return $citation;

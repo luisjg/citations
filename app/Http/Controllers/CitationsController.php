@@ -105,11 +105,11 @@ class CitationsController extends Controller
      * @throws NoDataException
      */
     public function destroy(Request $request, $id=null) {
-        if(empty($id) && !$request->filled('email')) {
+        if(empty($id) && !$request->filled('email') && !$request->filled('citations')) {
             // the route was accessed with no parameter, no email, and directly
             // via the DELETE method so throw an exception
             throw new InvalidRequestException(
-                "Please specify either a citation ID or an email address."
+                "Please specify either a citation ID, an email address, or an array of citation IDs."
             );
         }
         else if(!empty($id) && $request->filled('email')) {
@@ -121,6 +121,16 @@ class CitationsController extends Controller
                 "You may only specify either a citation ID or an email address, not both."
             );
         }
+        else if($request->filled('citations')) {
+            // we got citation IDs in the DELETE body, so let's validate it first
+            $this->checkRequestTypeJson($request);
+            $this->validate($request, [
+                'citations' => 'array'
+            ]);
+        }
+
+        // PK column that represents the textual IDs of the citations
+        $citationPK = "citation_id";
 
         // now that our sanity checks are done we can process the actual request
         // by retrieving the citation (or set of citations) in a specific way
@@ -129,19 +139,32 @@ class CitationsController extends Controller
         }
         else
         {
-            // set of citations by user email
-            $email = $request->input('email');
-            $user = User::where('email', $email)->first();
-            if(empty($user)) {
-                throw new NoDataException(
-                    "The individual with that email address does not exist."
-                );
-            }
+            // set of citations by user email or set of citations based on the
+            // IDs of the citations in the request body
+            if(!empty($email)) {
+                $email = $request->input('email');
+                $user = User::where('email', $email)->first();
+                if(empty($user)) {
+                    throw new NoDataException(
+                        "The individual with that email address does not exist."
+                    );
+                }
 
-            // resolve the collection based on the ID of the user
-            $citations = Citation::whereHas('members', function($q) use ($user) {
-                return $q->whereMembersId($user->user_id);
-            });
+                // resolve the collection based on the ID of the user
+                $citations = Citation::whereHas('members', function($q) use ($user) {
+                    return $q->whereMembersId($user->user_id);
+                });
+            }
+            else if($request->filled('citations')) {
+                // prepend the collection to all of the IDs
+                $ids = array_map(function($v) {
+                    return "citations:{$v}";
+                },
+                $request->input('citations'));
+
+                // resolve the collection based on the IDs
+                $citations = Citation::whereIn($citationPK, $ids);
+            }
         }
 
         // the get() is intentional even for a single instance because we want
@@ -164,7 +187,6 @@ class CitationsController extends Controller
 
             // delete the various related data in the reverse order of their creation;
             // we associate the models with their PK that stores the citation ID
-            $citationPK = "citation_id";
             $ns = "App\\"; // model namespace
             $models = [
                 'Collection' => $citationPK,
