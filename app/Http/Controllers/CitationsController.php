@@ -90,6 +90,128 @@ class CitationsController extends Controller
     }
 
     /**
+     * Processes a citation creation request. The data is expected to be JSON.
+     *
+     * @param Request $request The request to process
+     * @return Response
+     */
+    public function store(Request $request) {
+        // ensure this is a JSON request
+        $this->checkRequestTypeJson($request);
+
+        // define the JSON sub-object keys
+        $metaKey = "metadata";
+        $pubMetaKey = "published_metadata";
+        $membersKey = "members";
+        $docKey = "document";
+        $pubKey = "publisher";
+        $collKey = "collection";
+
+        // now we need to validate the minimum data in the payload
+        $this->validate($request, [
+            'type' => 'required|in:article,book,chapter,thesis',
+            "{$metaKey}.title" => 'required',
+            "{$pubMetaKey}.date" => 'required',
+            "{$membersKey}" => 'required|array|min:1',
+            "{$membersKey}.*.user_id" => 'required',
+            "{$membersKey}.*.precedence" => 'required',
+        ]);
+
+        // process the request as a transaction; we are doing the transaction
+        // within a try...catch so we can customize how the error response is
+        // returned when it fails via an exception
+        try
+        {
+            DB::beginTransaction();
+
+            // grab the next auto-incrementing ID
+            $nextId = 1;
+            $latestCitation = Citation::orderBy('id', 'DESC')->first();
+            if(!empty($latestCitation)) {
+                $nextId = $latestCitation->id + 1;
+            }
+
+            // create the citation object before we start attaching stuff to it
+            $citation = Citation::create([
+                'citation_id' => "citations:{$nextId}",
+                'citation_type' => $request->input('type'),
+                'collaborators' => $request->input('collaborators'),
+                'citation_text' => $request->input('citation_text'),
+                'note' => $request->input('note'),
+            ]);
+
+            // create the metadata for the citation
+            $citation->metadata()->create([
+                'title' => $request->input("{$metaKey}.title"),
+                'abstract' => $request->input("{$metaKey}.abstract"),
+                'book_title' => $request->input("{$metaKey}.book_title"),
+                'journal' => $request->input("{$metaKey}.journal"),
+            ]);
+
+            // create the published metadata
+            $citation->publishedMetadata()->create([
+                'how' => $request->input("{$pubMetaKey}.how"),
+                'date' => $request->input("{$pubMetaKey}.date"),
+            ]);
+
+            // attach the set of associated individuals
+            $people = [];
+            $members = $request->input($membersKey);
+            foreach($members as $member) {
+                $people[$member['user_id']] = [
+                    'role_position' => 'author',
+                    'precedence' => $member['precedence'],
+                ];
+            }
+            $citation->members()->attach($people);
+
+            // create the document data if it exists
+            if($request->filled($docKey)) {
+                $citation->document()->create([
+                    'doi' => $request->input("{$docKey}.doi"),
+                    'handle' => $request->input("{$docKey}.handle"),
+                    'url' => $request->input("{$docKey}.url"),
+                ]);
+            }
+
+            // create the publisher data if it exists
+            if($request->filled($pubKey)) {
+                $citation->publisher()->create([
+                    'institution' => $request->input("{$pubKey}.institution"),
+                    'organization' => $request->input("{$pubKey}.organization"),
+                    'publisher' => $request->input("{$pubKey}.publisher"),
+                    'school' => $request->input("{$pubKey}.school"),
+                    'address' => $request->input("{$pubKey}.address"),
+                ]);
+            }
+
+            // create the collection data if it exists
+            if($request->filled($collKey)) {
+                $citation->collection()->create([
+                    'edition' => $request->input("{$collKey}.edition"),
+                    'series' => $request->input("{$collKey}.series"),
+                    'number' => $request->input("{$collKey}.number"),
+                    'volume' => $request->input("{$collKey}.volume"),
+                    'chapter' => $request->input("{$collKey}.chapter"),
+                    'pages' => $request->input("{$collKey}.pages"),
+                ]);
+            }
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            Log::error('Could not create citation: ' . $e->getMessage());
+            return generateErrorResponse(
+                'The citation could not be created', 500, false
+            );
+        }
+
+        // return the success response
+        return generateMessageResponse('The citation has been added successfully');
+    }
+
+    /**
      * Checks that the request instance is a JSON request. Throws an exception
      * if the request is not a JSON request. Returns true otherwise.
      *
