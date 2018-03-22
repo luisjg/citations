@@ -203,7 +203,8 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not create citation: ' . $e->getMessage());
+            Log::error('Could not create citation: ' . $e->getMessage() .
+                '\n' . $e->getTraceAsString());
             return generateErrorResponse(
                 'The citation could not be created', 500, false
             );
@@ -226,6 +227,27 @@ class CitationsController extends Controller
     public function update(Request $request, $id) {
         // ensure this is a JSON request
         $this->checkRequestTypeJson($request);
+
+        // we have to be incredibly careful with the JSON body since we don't
+        // want to delete data accidentally by nature of it merely not being
+        // present in the request
+
+        try {
+            DB::beginTransaction();
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            Log::error('Could not update citation: ' . $e->getMessage() .
+                '\n' . $e->getTraceAsString());
+            return generateErrorResponse(
+                'The citation could not be updated', 500, false
+            );
+        }
+
+        // return the success response
+        return generateMessageResponse('The citation has been updated successfully');
     }
 
     /**
