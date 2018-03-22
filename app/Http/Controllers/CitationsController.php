@@ -15,12 +15,73 @@ use Log;
 class CitationsController extends Controller
 {
     /**
+     * This is the key of the citation metadata sub-object that may appear
+     * within a JSON request body.
+     *
+     * @var string
+     */
+    protected $metaKey = "metadata";
+
+    /**
+     * This is the key of the published metadata sub-object that may appear
+     * within a JSON request body.
+     *
+     * @var string
+     */
+    protected $pubMetaKey = "published_metadata";
+
+    /**
+     * This is the key of the author membership sub-object that may appear
+     * within a JSON request body.
+     *
+     * @var string
+     */
+    protected $membersKey = "members";
+
+    /**
+     * This is the key of the citation document sub-object that may appear
+     * within a JSON request body.
+     *
+     * @var string
+     */
+    protected $docKey = "document";
+
+    /**
+     * This is the key of the citation publisher sub-object that may appear
+     * within a JSON request body.
+     *
+     * @var string
+     */
+    protected $pubKey = "publisher";
+
+    /**
+     * This is the key of the citation collection sub-object that may appear
+     * within a JSON request body.
+     *
+     * @var string
+     */
+    protected $collKey = "collection";
+
+    /**
+     * This is the set of all possible citation types that can be processed
+     * in requests within this controller.
+     *
+     * @var array
+     */
+    protected $citationTypes = [
+        'article',
+        'book',
+        'chapter',
+        'thesis'
+    ];
+
+    /**
      * Returns the common base citation query that will be used for all other
      * controller methods here.
      *
      * @return Builder
      */
-    private function getBaseCitationQuery() {
+    protected function getBaseCitationQuery() {
         return Citation::with(
             'metadata',
             'collection',
@@ -102,16 +163,16 @@ class CitationsController extends Controller
         $this->checkRequestTypeJson($request);
 
         // define the JSON sub-object keys
-        $metaKey = "metadata";
-        $pubMetaKey = "published_metadata";
-        $membersKey = "members";
-        $docKey = "document";
-        $pubKey = "publisher";
-        $collKey = "collection";
+        $metaKey = $this->metaKey;
+        $pubMetaKey = $this->pubMetaKey;
+        $membersKey = $this->membersKey;
+        $docKey = $this->docKey;
+        $pubKey = $this->pubKey;
+        $collKey = $this->collKey;
 
         // now we need to validate the minimum data in the payload
         $this->validate($request, [
-            'type' => 'required|in:article,book,chapter,thesis',
+            'type' => 'required|in:' . implode(',' $this->citationTypes),
             "{$metaKey}.title" => 'required',
             "{$pubMetaKey}.date" => 'required',
             "{$membersKey}" => 'required|array|min:1',
@@ -228,12 +289,31 @@ class CitationsController extends Controller
         // ensure this is a JSON request
         $this->checkRequestTypeJson($request);
 
+        $citation = Citation::wherePartialId($id)->firstOrFail();
+
+        // generate a conditional set of validation rules based upon data that
+        // was received in the request body
+        $rules = $this->generateUpdateValidationRules($request);
+
+        // perform validation if any rules have been established; otherwise,
+        // nothing worthwhile was sent so trigger an exception
+        if(!empty($rules)) {
+            $this->validate($request, $rules);
+        }
+        else
+        {
+            // TODO: throw InvalidRequestException here (wait until DELETE pull request gets merged)
+        }
+
         // we have to be incredibly careful with the JSON body since we don't
         // want to delete data accidentally by nature of it merely not being
-        // present in the request
-
+        // present in the request; we also want to be able to load different
+        // relationships conditionally so we're not loading everything if only
+        // a few basic fields are being updated.
         try {
             DB::beginTransaction();
+
+            // TODO: perform the modifications
 
             DB::commit();
         }
@@ -265,5 +345,90 @@ class CitationsController extends Controller
         }
 
         return true;
+    }
+
+    /**
+     * Generates the set of validation rules for a citation update request.
+     * Returns an associative array containing the rules.
+     *
+     * @param Request $request The request to check for data
+     * @return array
+     */
+    protected function generateUpdateValidationRules(Request $request) {
+        $basicDataRule = "string|nullable"; // string type but can also be null
+
+        // these are the rules for the citation attributes themselves
+        if($request->has('type')) {
+            $rules['type'] = 'in:' . implode(',', $this->citationTypes);
+        }
+        if($request->has('collaborators')) {
+            $rules['collaborators'] = $basicDataRule;
+        }
+        if($request->has('citation_text')) {
+            $rules['citation_text'] = $basicDataRule;
+        }
+        if($request->has('note')) {
+            $rules['note'] = $basicDataRule;
+        }
+
+        // these are the keys of the possible sub-objects in the request body
+        $metaKey = $this->metaKey;
+        $pubMetaKey = $this->pubMetaKey;
+        $docKey = $this->docKey;
+        $pubKey = $this->pubKey;
+        $collKey = $this->collKey;
+
+        // generate the rules iteratively using a multidimensional associative
+        // array based upon the attributes of the sub-objects
+        $possibleInput = [
+            // citation metadata
+            $metaKey => [
+                'title',
+                'abstract',
+                'book_title',
+                'journal',
+            ],
+            // published metadata
+            $pubMetaKey => [
+                'how',
+                'date',
+            ],
+            // citation collection
+            $collKey => [
+                'edition',
+                'series',
+                'number',
+                'volume',
+                'chapter',
+                'pages',
+            ],
+            // citation document
+            $docKey => [
+                'doi',
+                'handle',
+                'url',
+            ],
+            // citation publisher
+            $pubKey => [
+                'institution',
+                'organization',
+                'publisher',
+                'school',
+                'address',
+            ],
+        ];
+        foreach($possibleInput as $key => $attributes) {
+            // only check the input attributes if the sub-object exists in the
+            // request body
+            if($request->has($key)) {
+                foreach($attributes as $attribute) {
+                    if($request->has("{$key}.{$attribute}")) {
+                        $rules["{$key}.{$attribute}"] = $basicDataRule;
+                    }
+                }
+            }
+        }
+
+        return $rules;
     }
 }
