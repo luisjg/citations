@@ -94,6 +94,8 @@ class CitationsController extends Controller
      *
      * @param Request $request The request to process
      * @return Response
+     *
+     * @throws InvalidPayloadTypeException
      */
     public function store(Request $request) {
         // ensure this is a JSON request
@@ -209,6 +211,21 @@ class CitationsController extends Controller
 
         // return the success response
         return generateMessageResponse('The citation has been added successfully');
+    }
+
+    /**
+     * Processes a citation update request. The data is expected to be JSON.
+     *
+     * @param Request $request The request to process
+     * @param int $id The ID of the citation to update
+     *
+     * @return Response
+     *
+     * @throws InvalidPayloadTypeException
+     */
+    public function update(Request $request, $id) {
+        // ensure this is a JSON request
+        $this->checkRequestTypeJson($request);
     }
 
     /**

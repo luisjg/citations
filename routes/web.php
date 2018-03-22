@@ -24,4 +24,8 @@ $router->group(['prefix' => '1.0'], function () use ($router) {
     	'as' => 'citations.store',
     	'uses' => 'CitationsController@store',
     ]);
+    $router->put('citations/{id:[0-9]+}', [
+        'as' => 'citations.update',
+        'uses' => 'CitationsController@update',
+    ]);
 });
