@@ -357,18 +357,10 @@ class CitationsController extends Controller
     protected function generateUpdateValidationRules(Request $request) {
         $basicDataRule = "string|nullable"; // string type but can also be null
 
-        // these are the rules for the citation attributes themselves
+        // ensure the type is within the acceptable set of citation types if
+        // it has been provided
         if($request->has('type')) {
             $rules['type'] = 'in:' . implode(',', $this->citationTypes);
-        }
-        if($request->has('collaborators')) {
-            $rules['collaborators'] = $basicDataRule;
-        }
-        if($request->has('citation_text')) {
-            $rules['citation_text'] = $basicDataRule;
-        }
-        if($request->has('note')) {
-            $rules['note'] = $basicDataRule;
         }
 
         // these are the keys of the possible sub-objects in the request body
@@ -381,6 +373,10 @@ class CitationsController extends Controller
         // generate the rules iteratively using a multidimensional associative
         // array based upon the attributes of the sub-objects
         $possibleInput = [
+            // basic citation data (attributes not in sub-objects)
+            'collaborators',
+            'citation_text',
+            'note',
             // citation metadata
             $metaKey => [
                 'title',
@@ -417,14 +413,23 @@ class CitationsController extends Controller
                 'address',
             ],
         ];
-        foreach($possibleInput as $key => $attributes) {
+        foreach($possibleInput as $key => $value) {
             // only check the input attributes if the sub-object exists in the
             // request body
-            if($request->has($key)) {
-                foreach($attributes as $attribute) {
-                    if($request->has("{$key}.{$attribute}")) {
-                        $rules["{$key}.{$attribute}"] = $basicDataRule;
+            if(is_array($value)) {
+                if($request->has($key)) {
+                    foreach($value as $attribute) {
+                        if($request->has("{$key}.{$attribute}")) {
+                            $rules["{$key}.{$attribute}"] = $basicDataRule;
+                        }
                     }
+                }
+            }
+            else
+            {
+                // check for the attribute in the base object
+                if($request->has($value)) {
+                    $rules[$value] = $basicDataRule;
                 }
             }
         }
