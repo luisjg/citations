@@ -61,6 +61,27 @@ class Citation extends Model
 	}
 
 	/**
+	 * Returns whether the citation can be considered to have been published.
+	 * Essentially, if any of the requisite document attributes have been
+	 * filled, this citation can be shown publicly.
+	 *
+	 * @return bool
+	 */
+	public function getWasPublishedAttribute() {
+		if(empty($this->document)) {
+			return false;
+		}
+
+		$doi = trim($this->document->doi);
+		$handle = trim($this->document->handle);
+		$url = trim($this->document->url);
+
+		// if any of the document attributes are filled, we can consider this
+		// citation to be published
+		return (!empty($doi) || !empty($handle) || !empty($url));
+	}
+
+	/**
 	 * Query scope to filter records by the citation ID and without having
 	 * to prepend the "citations:" collection manually.
 	 *

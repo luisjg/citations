@@ -3,10 +3,10 @@
 namespace App\Exceptions;
 use Exception;
 
-class InvalidPayloadTypeException extends Exception
+class NoDataException extends Exception
 {
 	/**
-	 * Constructs a new InvalidPayloadTypeException instance.
+	 * Constructs a new NoDataException instance.
 	 *
 	 * @param string $message Optional message for the exception
 	 */
@@ -15,6 +15,6 @@ class InvalidPayloadTypeException extends Exception
 			// add a leading space if there is something in the parameter
 			$message = " {$message}";
 		}
-		parent::__construct("This only accepts payloads as JSON." . $message);
+		parent::__construct("No data resolved." . $message);
 	}
 }
