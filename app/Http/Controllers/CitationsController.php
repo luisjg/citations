@@ -174,7 +174,7 @@ class CitationsController extends Controller
 
         // now we need to validate the minimum data in the payload
         $this->validate($request, [
-            'type' => 'required|in:' . implode(',' $this->citationTypes),
+            'type' => 'required|in:' . implode(',', $this->citationTypes),
             "{$metaKey}.title" => 'required',
             "{$pubMetaKey}.date" => 'required',
             "{$membersKey}" => 'required|array|min:1',
