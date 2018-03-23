@@ -30,7 +30,7 @@ class CitationsController extends Controller
      *
      * @var string
      */
-    protected $pubMetaKey = "published_metadata";
+    protected $pubMetaKey = "published";
 
     /**
      * This is the key of the author membership sub-object that may appear
