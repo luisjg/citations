@@ -307,7 +307,7 @@ class CitationsController extends Controller
         else
         {
             throw new InvalidRequestException(
-                'Please specify valid data to be modified'
+                'Please specify valid data to be modified.'
             );
         }
 
@@ -503,7 +503,7 @@ class CitationsController extends Controller
         $basicDataRule = "string|nullable"; // string type but can also be null
 
         $rules = [];
-        $input = [];
+        $input = []; // this is a multidimensional associative array as well
 
         // ensure the type is within the acceptable set of citation types if
         // it has been provided
@@ -570,7 +570,7 @@ class CitationsController extends Controller
                     foreach($value as $attribute) {
                         if($request->has("{$key}.{$attribute}")) {
                             $rules["{$key}.{$attribute}"] = $basicDataRule;
-                            $input["{$key}.{$attribute}"] = $request->input("{$key}.{$attribute}");
+                            $input[$key][$attribute] = $request->input("{$key}.{$attribute}");
                         }
                     }
                 }
