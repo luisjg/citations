@@ -297,7 +297,7 @@ class CitationsController extends Controller
         // input based upon data that was received in the request body
         $arr = $this->generateUpdateValidationRulesAndInput($request);
         $rules = $arr['rules'];
-        $input = $arr['input'];
+        $input = $arr['input']; // multidimensional associative array
 
         // perform validation if any rules have been established; otherwise,
         // nothing worthwhile was sent so trigger an exception
@@ -311,15 +311,62 @@ class CitationsController extends Controller
             );
         }
 
+        // these are the keys of the possible sub-objects in the request body
+        $metaKey = $this->metaKey;
+        $pubMetaKey = $this->pubMetaKey;
+        $docKey = $this->docKey;
+        $pubKey = $this->pubKey;
+        $collKey = $this->collKey;
+
+        // maps JSON keys to relationships on the citations model
+        $keysToRelationships = [
+            $metaKey => 'metadata',
+            $pubMetaKey => 'publishedMetadata',
+            $docKey => 'document',
+            $pubKey => 'publisher',
+            $collKey => 'collection', 
+        ];
+
         // we have to be incredibly careful with the JSON body since we don't
         // want to delete data accidentally by nature of it merely not being
         // present in the request; we also want to be able to load different
         // relationships conditionally so we're not loading everything if only
         // a few basic fields are being updated.
+        $objects = [];
         try {
             DB::beginTransaction();
 
-            // TODO: perform the modifications
+            // iterate over the input array and attempt to make the modifications
+            foreach($input as $key => $value) {
+                if(is_array($value)) {
+                    // load the relationship before iterating
+                    $relationship = $keysToRelationships[$key];
+                    $citation->load($relationship);
+
+                    // update the relationship values if there is data in the
+                    // relationship; otherwise, create it
+                    if(!is_null($citation->$relationship)) {
+                        foreach($value as $attribute => $attrValue) {
+                            $citation->$relationship->$attribute = $attrValue;
+                        }
+
+                        $citation->$relationship->save();
+                        $citation->$relationship->touch();
+                    }
+                    else
+                    {
+                        $citation->$relationship()->create($value);
+                    }
+                }
+                else
+                {
+                    // base citation attribute
+                    $citation->$key = $value;
+                }
+            }
+
+            $citation->save();
+            $citation->touch();
 
             DB::commit();
         }
