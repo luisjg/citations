@@ -10,6 +10,14 @@ class Citation extends Model
 	protected $primaryKey = "citation_id";
 	public $incrementing = false;
 
+	protected $fillable = [
+		'citation_id',
+		'citation_type',
+		'collaborators',
+		'citation_text',
+		'note'
+	];
+
 	protected $hidden = ['id', 'citation_type', 'created_at', 'updated_at'];
 	protected $appends = ['type'];
 
