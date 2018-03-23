@@ -291,9 +291,11 @@ class CitationsController extends Controller
 
         $citation = Citation::wherePartialId($id)->firstOrFail();
 
-        // generate a conditional set of validation rules based upon data that
-        // was received in the request body
-        $rules = $this->generateUpdateValidationRules($request);
+        // generate a conditional set of validation rules and their matching
+        // input based upon data that was received in the request body
+        $arr = $this->generateUpdateValidationRulesAndInput($request);
+        $rules = $arr['rules'];
+        $input = $arr['input'];
 
         // perform validation if any rules have been established; otherwise,
         // nothing worthwhile was sent so trigger an exception
@@ -348,19 +350,24 @@ class CitationsController extends Controller
     }
 
     /**
-     * Generates the set of validation rules for a citation update request.
-     * Returns an associative array containing the rules.
+     * Generates the set of validation rules and matching input for a citation
+     * update request. Returns an associative array containing the rules and
+     * the matching input.
      *
      * @param Request $request The request to check for data
      * @return array
      */
-    protected function generateUpdateValidationRules(Request $request) {
+    protected function generateUpdateValidationRulesAndInput(Request $request) {
         $basicDataRule = "string|nullable"; // string type but can also be null
+
+        $rules = [];
+        $input = [];
 
         // ensure the type is within the acceptable set of citation types if
         // it has been provided
         if($request->has('type')) {
             $rules['type'] = 'in:' . implode(',', $this->citationTypes);
+            $input['type'] = $request->input('type');
         }
 
         // these are the keys of the possible sub-objects in the request body
@@ -421,6 +428,7 @@ class CitationsController extends Controller
                     foreach($value as $attribute) {
                         if($request->has("{$key}.{$attribute}")) {
                             $rules["{$key}.{$attribute}"] = $basicDataRule;
+                            $input["{$key}.{$attribute}"] = $request->input("{$key}.{$attribute}");
                         }
                     }
                 }
@@ -430,10 +438,14 @@ class CitationsController extends Controller
                 // check for the attribute in the base object
                 if($request->has($value)) {
                     $rules[$value] = $basicDataRule;
+                    $input[$value] = $request->input($value);
                 }
             }
         }
 
-        return $rules;
+        return [
+            'rules' => $rules,
+            'input' => $input,
+        ];
     }
 }
