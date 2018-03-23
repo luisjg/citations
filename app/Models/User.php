@@ -13,4 +13,15 @@ class User extends Model
 	public function facultyUrl() {
 		return $this->hasOne('App\FacultyUrl', 'user_id');
 	}
+
+	/**
+	 * Query scope to filter records by the members ID of an associated
+	 * individual.
+	 *
+	 * @param string $membersId The ID of the member
+	 * @return Builder
+	 */
+	public function scopeWhereMembersId($query, $membersId) {
+		return $query->where('user_id', $membersId);
+	}
 }

@@ -8,6 +8,8 @@ use App\Citation;
 use App\User;
 
 use App\Exceptions\InvalidPayloadTypeException;
+use App\Exceptions\InvalidRequestException;
+use App\Exceptions\NoDataException;
 
 use DB;
 use Log;
@@ -151,6 +153,142 @@ class CitationsController extends Controller
     }
 
     /**
+     * Deletes either a single citation or deletes all citations for a given
+     * email address. Throws an exception if both the citation ID and the email
+     * query parameter are empty or both are filled. Throws another exception
+     * if there are no citations to delete.
+     *
+     * @param Request $request The request to check for an email address
+     * @param int $id The optional ID of the citation that will be deleted
+     *
+     * @return Response
+     * @throws InvalidRequestException
+     * @throws NoDataException
+     */
+    public function destroy(Request $request, $id=null) {
+        if(empty($id) && !$request->filled('email') && !$request->filled('citations')) {
+            // the route was accessed with no parameter, no email, and directly
+            // via the DELETE method so throw an exception
+            throw new InvalidRequestException(
+                "Please specify either a citation ID, an email address, or an array of citation IDs."
+            );
+        }
+        else if(!empty($id) && $request->filled('email')) {
+            // specifying BOTH an ID and an email address is also a problem
+            // since the idea behind the method is not to handle both cases
+            // at the same time since it could result in a confusing response
+            // to the consuming client
+            throw new InvalidRequestException(
+                "You may only specify either a citation ID or an email address, not both."
+            );
+        }
+        else if($request->filled('citations')) {
+            // we got citation IDs in the DELETE body, so let's validate it first
+            $this->checkRequestTypeJson($request);
+            $this->validate($request, [
+                'citations' => 'array'
+            ]);
+        }
+
+        // PK column that represents the textual IDs of the citations
+        $citationPK = "citation_id";
+
+        // now that our sanity checks are done we can process the actual request
+        // by retrieving the citation (or set of citations) in a specific way
+        if(!empty($id)) {
+            $citations = Citation::wherePartialId($id);
+        }
+        else
+        {
+            // set of citations by user email or set of citations based on the
+            // IDs of the citations in the request body
+            if($request->has('email')) {
+                $email = $request->input('email');
+                $user = User::where('email', $email)->first();
+                if(empty($user)) {
+                    throw new NoDataException(
+                        "The individual with that email address does not exist."
+                    );
+                }
+
+                // resolve the collection based on the ID of the user
+                $citations = Citation::whereHas('members', function($q) use ($user) {
+                    return $q->whereMembersId($user->user_id);
+                });
+            }
+            else if($request->filled('citations')) {
+                // prepend the collection to all of the IDs
+                $ids = array_map(function($v) {
+                    return "citations:{$v}";
+                },
+                $request->input('citations'));
+
+                // resolve the collection based on the IDs
+                $citations = Citation::whereIn($citationPK, $ids);
+            }
+            else
+            {
+                // we received nothing to work with, so treat it as a bad request
+                throw new InvalidRequestException(
+                    "Please specify either a citation ID, an email address, or an array of citation IDs."
+                );
+            }
+        }
+
+        // the get() is intentional even for a single instance because we want
+        // to resolve a Collection so we can use pluck()
+        $citationIds = $citations->get()->pluck('citation_id')->toArray();
+
+        // make sure we have citations
+        if(empty($citationIds)) {
+            throw new NoDataException(
+                "No matching citation(s) to delete."
+            );
+        }
+
+        // we're going to delete the citations in a specific way to prevent the
+        // need to do a separate database call per citation in the case that we
+        // are destroying a set of citations; we will have the same number of
+        // database calls regardless of the number of citations being destroyed
+        try {
+            DB::beginTransaction();
+
+            // delete the various related data in the reverse order of their creation;
+            // we associate the models with their PK that stores the citation ID
+            $ns = "App\\"; // model namespace
+            $models = [
+                'Collection' => $citationPK,
+                'Publisher' => $citationPK,
+                'Document' => $citationPK,
+                'CitationMember' => 'parent_entities_id',
+                'PublishedMetadata' => $citationPK,
+                'CitationMetadata' => $citationPK,
+                'Citation' => $citationPK,
+            ];
+
+            // generate the full model namespace for each model and then delete
+            // all matching data based on the set of citation IDs
+            foreach($models as $modelName => $pk) {
+                $model = "{$ns}{$modelName}";
+                $model::whereIn($pk, $citationIds)->delete();
+            }
+          
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            Log::error('Could not delete citation(s): [' .
+                implode(",", $citationIds) . "]. " . $e->getMessage());
+            return generateErrorResponse('The citation(s) could not be deleted', 500);
+        }
+
+        // return the success response
+        return generateMessageResponse(
+            count($citationIds) . " citation(s) were deleted successfully!"
+        );
+    }
+            
+    /*
      * Processes a citation creation request. The data is expected to be JSON.
      *
      * @param Request $request The request to process
@@ -343,7 +481,9 @@ class CitationsController extends Controller
      */
     protected function checkRequestTypeJson(Request $request) {
         if(!$request->isJson()) {
-            throw new InvalidPayloadTypeException();
+            throw new InvalidPayloadTypeException(
+                "Please ensure your Content-Type header is set to application/json."
+            );
         }
 
         return true;

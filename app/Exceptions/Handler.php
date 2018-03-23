@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use App\Exceptions\InvalidPayloadTypeException;
+use App\Exceptions\InvalidRequestException;
+use App\Exceptions\NoDataException;
 
 class Handler extends ExceptionHandler
 {
@@ -24,6 +26,9 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+        InvalidPayloadTypeException::class,
+        InvalidRequestException::class,
+        NoDataException::class,
     ];
 
     /**
@@ -64,11 +69,18 @@ class Handler extends ExceptionHandler
                 500
             ), 500);
         }
-        else if($e instanceof InvalidPayloadTypeException) {
+        else if($e instanceof InvalidPayloadTypeException ||
+            $e instanceof InvalidRequestException) {
             return response(generateErrorResponse(
-                $e->getMessage() . " Please ensure your Content-Type header is set to application/json.",
+                $e->getMessage(),
                 400
             ), 400);
+        }
+        else if($e instanceof NoDataException) {
+            return response(generateErrorResponse(
+                $e->getMessage(),
+                404
+            ), 404);
         }
 
         return parent::render($request, $e);

@@ -24,6 +24,12 @@ $router->group(['prefix' => '1.0'], function () use ($router) {
     	'as' => 'citations.store',
     	'uses' => 'CitationsController@store',
     ]);
+    // this DELETE route handles both the single deletion case as well as
+    // the case where an email will be provided as part of the query string
+    $router->delete('citations[/{id:[0-9]+}]', [
+        'as' => 'citations.destroy',
+        'uses' => 'CitationsController@destroy'
+    ]);
     $router->put('citations/{id:[0-9]+}', [
         'as' => 'citations.update',
         'uses' => 'CitationsController@update',
