@@ -141,7 +141,7 @@ class CitationsController extends Controller
         {
             // set of citations by user email or set of citations based on the
             // IDs of the citations in the request body
-            if(!empty($email)) {
+            if($request->has('email')) {
                 $email = $request->input('email');
                 $user = User::where('email', $email)->first();
                 if(empty($user)) {
