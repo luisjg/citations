@@ -332,7 +332,6 @@ class CitationsController extends Controller
         // present in the request; we also want to be able to load different
         // relationships conditionally so we're not loading everything if only
         // a few basic fields are being updated.
-        $objects = [];
         try {
             DB::beginTransaction();
 
