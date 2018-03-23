@@ -306,7 +306,9 @@ class CitationsController extends Controller
         }
         else
         {
-            // TODO: throw InvalidRequestException here (wait until DELETE pull request gets merged)
+            throw new InvalidRequestException(
+                'Please specify valid data to be modified'
+            );
         }
 
         // we have to be incredibly careful with the JSON body since we don't
