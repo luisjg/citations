@@ -509,7 +509,8 @@ class CitationsController extends Controller
         catch(\Exception $e) {
             DB::rollBack();
             Log::error('Could not delete citation(s): [' .
-                implode(",", $citationIds) . "]. " . $e->getMessage());
+                implode(",", $citationIds) . "]. " . $e->getMessage() .
+                '\n' . $e->getTraceAsString());
             return generateErrorResponse('The citation(s) could not be deleted', 500);
         }
 
@@ -563,7 +564,8 @@ class CitationsController extends Controller
         catch(\Exception $e) {
             DB::rollBack();
             Log::error("Could not add member(s) to citation {$id}: [" .
-                implode(",", array_keys($people)) . "]. " . $e->getMessage());
+                implode(",", array_keys($people)) . "]. " . $e->getMessage() .
+                '\n' . $e->getTraceAsString());
             return generateErrorResponse('Could not add ' . count($people) .
                 ' member(s) to the citation', 500);
         }
