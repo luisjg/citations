@@ -581,7 +581,42 @@ class CitationsController extends Controller
      * @return Response
      */
     public function destroyMember(Request $request, $id) {
+        // ensure this is a JSON request
+        $this->checkRequestTypeJson($request);
 
+        $citation = Citation::wherePartialId($id)->firstOrFail();
+
+        // define the JSON sub-object keys
+        $membersKey = $this->membersKey;
+
+        // validate the request
+        $this->validate($request, [
+            "{$membersKey}" => 'required|array|min:1',
+            "{$membersKey}.*.user_id" => 'required',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // detach the set of associated individuals
+            $members = $request->input($membersKey);
+            $people = array_column($members, 'user_id');
+            $citation->members()->detach($people);
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            logErrorException("Could not remove member(s) from citation {$id}: [" .
+                implode(",", $people) . "].", $e);
+            return generateErrorResponse('Could not remove ' . count($people) .
+                ' member(s) from the citation', 500);
+        }
+
+        // return the success response
+        return generateMessageResponse(
+            count($people) . " member(s) removed from the citation successfully!"
+        );
     }
 
     /**
