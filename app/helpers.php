@@ -1,5 +1,7 @@
 <?php
 
+use Log;
+
 /**
  * Generates a response array based upon a given static message as well as an
  * optional response code and optional success value.
@@ -106,4 +108,15 @@ function fixCitationAttributes(&$citation) {
 	$citation['is_published'] = ($citation['wasPublished'] ? "true" : "false");
 
 	return $citation;
+}
+
+/**
+ * Logs an error that resulted in an exception being raised.
+ *
+ * @param string $message A descriptive (non-exception) error message
+ * @param Exception $exception The exception that was raised
+ */
+function logErrorException($message, $exception) {
+	Log::error($message . " " . $e->getMessage() .
+        '\n' . $e->getTraceAsString());
 }

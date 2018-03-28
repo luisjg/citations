@@ -267,8 +267,7 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not create citation: ' . $e->getMessage() .
-                '\n' . $e->getTraceAsString());
+            logErrorException('Could not create citation.', $e);
             return generateErrorResponse(
                 'The citation could not be created', 500, false
             );
@@ -372,8 +371,7 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not update citation: ' . $e->getMessage() .
-                '\n' . $e->getTraceAsString());
+            logErrorException('Could not update citation.', $e);
             return generateErrorResponse(
                 'The citation could not be updated', 500, false
             );
@@ -508,9 +506,8 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not delete citation(s): [' .
-                implode(",", $citationIds) . "]. " . $e->getMessage() .
-                '\n' . $e->getTraceAsString());
+            logErrorException('Could not delete citation(s): [' .
+                implode(",", $citationIds) . "].", $e);
             return generateErrorResponse('The citation(s) could not be deleted', 500);
         }
 
@@ -563,9 +560,8 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error("Could not add member(s) to citation {$id}: [" .
-                implode(",", array_keys($people)) . "]. " . $e->getMessage() .
-                '\n' . $e->getTraceAsString());
+            logErrorException("Could not add member(s) to citation {$id}: [" .
+                implode(",", array_keys($people)) . "].", $e);
             return generateErrorResponse('Could not add ' . count($people) .
                 ' member(s) to the citation', 500);
         }
