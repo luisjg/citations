@@ -1,5 +1,6 @@
 <?php
 
+use Exception;
 use Log;
 
 /**
@@ -116,7 +117,7 @@ function fixCitationAttributes(&$citation) {
  * @param string $message A descriptive (non-exception) error message
  * @param Exception $exception The exception that was raised
  */
-function logErrorException($message, $exception) {
+function logErrorException($message, Exception $exception) {
 	Log::error($message . " " . $e->getMessage() .
         '\n' . $e->getTraceAsString());
 }
