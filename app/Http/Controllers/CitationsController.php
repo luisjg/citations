@@ -223,8 +223,9 @@ class CitationsController extends Controller
             $people = [];
             $members = $request->input($membersKey);
             foreach($members as $member) {
+                $role = (!empty($member['role_position']) ? $member['role_position'] : 'author');
                 $people[$member['user_id']] = [
-                    'role_position' => 'author',
+                    'role_position' => $role,
                     'precedence' => $member['precedence'],
                 ];
             }
@@ -266,8 +267,7 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not create citation: ' . $e->getMessage() .
-                '\n' . $e->getTraceAsString());
+            logErrorException('Could not create citation.', $e);
             return generateErrorResponse(
                 'The citation could not be created', 500, false
             );
@@ -371,8 +371,7 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not update citation: ' . $e->getMessage() .
-                '\n' . $e->getTraceAsString());
+            logErrorException('Could not update citation.', $e);
             return generateErrorResponse(
                 'The citation could not be updated', 500, false
             );
@@ -507,14 +506,116 @@ class CitationsController extends Controller
         }
         catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Could not delete citation(s): [' .
-                implode(",", $citationIds) . "]. " . $e->getMessage());
+            logErrorException('Could not delete citation(s): [' .
+                implode(",", $citationIds) . "].", $e);
             return generateErrorResponse('The citation(s) could not be deleted', 500);
         }
 
         // return the success response
         return generateMessageResponse(
             count($citationIds) . " citation(s) were deleted successfully!"
+        );
+    }
+
+    /**
+     * Associates individual(s) with a specific citation.
+     *
+     * @param Request $request The request to check for data
+     * @param int $id The ID of the citation
+     *
+     * @return Response
+     */
+    public function addMember(Request $request, $id) {
+        // ensure this is a JSON request
+        $this->checkRequestTypeJson($request);
+
+        $citation = Citation::wherePartialId($id)->firstOrFail();
+
+        // define the JSON sub-object keys
+        $membersKey = $this->membersKey;
+
+        // validate the request
+        $this->validate($request, [
+            "{$membersKey}" => 'required|array|min:1',
+            "{$membersKey}.*.user_id" => 'required',
+            "{$membersKey}.*.precedence" => 'required',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // attach the set of associated individuals
+            $people = [];
+            $members = $request->input($membersKey);
+            foreach($members as $member) {
+                $role = (!empty($member['role_position']) ? $member['role_position'] : 'author');
+                $people[$member['user_id']] = [
+                    'role_position' => $role,
+                    'precedence' => $member['precedence'],
+                ];
+            }
+            $citation->members()->attach($people);
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            logErrorException("Could not add member(s) to citation {$id}: [" .
+                implode(",", array_keys($people)) . "].", $e);
+            return generateErrorResponse('Could not add ' . count($people) .
+                ' member(s) to the citation', 500);
+        }
+
+        // return the success response
+        return generateMessageResponse(
+            count($people) . " member(s) added to the citation successfully!"
+        );
+    }
+
+    /**
+     * Unassociates individual(s) from a specific citation.
+     *
+     * @param Request $request The request to check for data
+     * @param int $id The ID of the citation
+     *
+     * @return Response
+     */
+    public function destroyMember(Request $request, $id) {
+        // ensure this is a JSON request
+        $this->checkRequestTypeJson($request);
+
+        $citation = Citation::wherePartialId($id)->firstOrFail();
+
+        // define the JSON sub-object keys
+        $membersKey = $this->membersKey;
+
+        // validate the request
+        $this->validate($request, [
+            "{$membersKey}" => 'required|array|min:1',
+            "{$membersKey}.*.user_id" => 'required',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // detach the set of associated individuals
+            $members = $request->input($membersKey);
+            $people = array_column($members, 'user_id');
+            $citation->members()->detach($people);
+
+            DB::commit();
+        }
+        catch(\Exception $e) {
+            DB::rollBack();
+            logErrorException("Could not remove member(s) from citation {$id}: [" .
+                implode(",", $people) . "].", $e);
+            return generateErrorResponse('Could not remove ' . count($people) .
+                ' member(s) from the citation', 500);
+        }
+
+        // return the success response
+        return generateMessageResponse(
+            count($people) . " member(s) removed from the citation successfully!"
         );
     }
 

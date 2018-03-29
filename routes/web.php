@@ -24,6 +24,14 @@ $router->group(['prefix' => '1.0'], function () use ($router) {
     	'as' => 'citations.store',
     	'uses' => 'CitationsController@store',
     ]);
+    $router->post('citations/{id:[0-9]+}/members', [
+        'as' => 'citations.members.store',
+        'uses' => 'CitationsController@addMember',
+    ]);
+    $router->delete('citations/{id:[0-9]+}/members', [
+        'as' => 'citations.members.destroy',
+        'uses' => 'CitationsController@destroyMember',
+    ]);
     $router->put('citations/{id:[0-9]+}', [
         'as' => 'citations.update',
         'uses' => 'CitationsController@update',
