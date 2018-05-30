@@ -10,6 +10,12 @@ class AcademicDepartment extends Model
 	protected $primaryKey = "entities_id";
 	public $incrementing = false;
 
+	/**
+	 * Returns a BelongsToMany instance representing the set of all users that
+	 * have some kind of membership to this department.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
 	public function users() {
 		return $this->belongsToMany('App\User', 'nemo.memberships', 'parent_entities_id', 'individuals_id');
 	}
