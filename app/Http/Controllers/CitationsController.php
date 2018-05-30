@@ -227,6 +227,7 @@ class CitationsController extends Controller
      * @return Response
      */
     public function departmentIndex(Request $request, $dept_id, $type="citations") {
+        //dd($request->headers());
         // get the base query and apply any relevant filters from the query
         // string
         $citations = $this->getBaseDepartmentCitationQuery($dept_id);

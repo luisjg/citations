@@ -12,9 +12,9 @@
  * @return array
  */
 function generateMessageResponse($request, $message, $code=200, $success=true) {
-	// attempt to figure out the version of the API
-	$path_parts = explode('/', $request->path());
-	$first_part = head($path_parts);
+	// attempt to figure out the version of the API based upon the structure
+	// of the request path
+	$first_part = $request->segment(1);
 	$version = (is_numeric($first_part) ? $first_part : '1.0');
 
 	return [
@@ -56,9 +56,9 @@ function generateErrorResponse($request, $message, $code=404, $success=false) {
 function generateCollectionResponse($request, $collectionType, $data, $code=200, $success=true) {
 	$isCollection = is_a($data, 'Illuminate\Support\Collection');
 
-	// attempt to figure out the version of the API
-	$path_parts = explode('/', $request->path());
-	$first_part = head($path_parts);
+	// attempt to figure out the version of the API based upon the structure
+	// of the request path
+	$first_part = $request->segment(1);
 	$version = (is_numeric($first_part) ? $first_part : '1.0');
 
 	$arr = [
