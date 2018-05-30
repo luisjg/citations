@@ -69,6 +69,7 @@ $app->singleton(
 
 $app->middleware([
    CSUNMetaLab\LumenForceHttps\Http\Middleware\ForceHttps::class,
+   App\Http\Middleware\APIVersioning::class,
 ]);
 
 /*

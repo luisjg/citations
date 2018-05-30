@@ -227,7 +227,6 @@ class CitationsController extends Controller
      * @return Response
      */
     public function departmentIndex(Request $request, $dept_id, $type="citations") {
-        //dd($request->headers());
         // get the base query and apply any relevant filters from the query
         // string
         $citations = $this->getBaseDepartmentCitationQuery($dept_id);
@@ -260,7 +259,7 @@ class CitationsController extends Controller
      * @param int $id The ID of the citation that will be found
      * @return Response
      */
-    public function show($id) {
+    public function show(Request $request, $id) {
         $citation = $this->getBaseCitationQuery();
 
         // filter record by the citation's partial ID

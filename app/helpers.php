@@ -12,16 +12,11 @@
  * @return array
  */
 function generateMessageResponse($request, $message, $code=200, $success=true) {
-	// attempt to figure out the version of the API based upon the structure
-	// of the request path
-	$first_part = $request->segment(1);
-	$version = (is_numeric($first_part) ? $first_part : '1.0');
-
 	return [
 		"status" => "$code",
 		"success" => ($success ? "true" : "false"),
 		"api" => "citations",
-		"version" => $version,
+		"version" => $request->headers->get('X-API-VERSION', '1.0'),
 		"message" => $message
 	];
 }
@@ -56,16 +51,11 @@ function generateErrorResponse($request, $message, $code=404, $success=false) {
 function generateCollectionResponse($request, $collectionType, $data, $code=200, $success=true) {
 	$isCollection = is_a($data, 'Illuminate\Support\Collection');
 
-	// attempt to figure out the version of the API based upon the structure
-	// of the request path
-	$first_part = $request->segment(1);
-	$version = (is_numeric($first_part) ? $first_part : '1.0');
-
 	$arr = [
 		"status" => "$code",
 		"success" => ($success ? "true" : "false"),
 		"api" => "citations",
-		"version" => $version,
+		"version" => $request->headers->get('X-API-VERSION', '1.0'),
 		"collection" => $collectionType,
 		"count" => "" . ($isCollection ? $data->count() : 1),
 		$collectionType => $data,
