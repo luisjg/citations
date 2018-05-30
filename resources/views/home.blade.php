@@ -77,11 +77,11 @@
 </ul>
 <strong>Specific Citation Type</strong>
 <ul>
-  <li><a href="{!! url('1.0/citations/article') !!}">{!! url('1.0/citations/article') !!}</a></li>
-  <li><a href="{!! url('1.0/citations/book') !!}">{!! url('1.0/citations/book') !!}</a></li>
-  <li><a href="{!! url('1.0/citations/chapter') !!}">{!! url('1.0/citations/chapter') !!}</a></li>
-  <li><a href="{!! url('1.0/citations/presentation') !!}">{!! url('1.0/citations/presentation') !!}</a></li>
-  <li><a href="{!! url('1.0/citations/thesis') !!}">{!! url('1.0/citations/thesis') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/articles') !!}">{!! url('1.0/citations/articles') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/books') !!}">{!! url('1.0/citations/books') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/chapters') !!}">{!! url('1.0/citations/chapters') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/presentations') !!}">{!! url('1.0/citations/presentations') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/theses') !!}">{!! url('1.0/citations/theses') !!}</a></li>
 </ul>
 <h2 id="subcollections" class="type--header type--thin">Subcollections</h2>
 <strong>Specified person's Citations</strong>
@@ -90,10 +90,10 @@
 </ul>
 <strong>Specific Citation Type by user</strong>
 <ul>
-  <li><a href="{!! url('1.0/citations/article?email='.$email) !!}">{!! url('1.0/citations/article?email='.$email) !!}</a></li>
-  <li><a href="{!! url('1.0/citations/book?email='.$email) !!}">{!! url('1.0/citations/book?email='.$email) !!}</a></li>
-  <li><a href="{!! url('1.0/citations/chapter?email='.$email) !!}">{!! url('1.0/citations/chapter?email='.$email) !!}</a></li>
-  <li><a href="{!! url('1.0/citations/presentation?email='.$email) !!}">{!! url('1.0/citations/presentation?email='.$email) !!}</a></li>
-  <li><a href="{!! url('1.0/citations/thesis?email='.$email) !!}">{!! url('1.0/citations/thesis?email='.$email) !!}</a></li>
+  <li><a href="{!! url('1.0/citations/articles?email='.$email) !!}">{!! url('1.0/citations/articles?email='.$email) !!}</a></li>
+  <li><a href="{!! url('1.0/citations/books?email='.$email) !!}">{!! url('1.0/citations/books?email='.$email) !!}</a></li>
+  <li><a href="{!! url('1.0/citations/chapters?email='.$email) !!}">{!! url('1.0/citations/chapters?email='.$email) !!}</a></li>
+  <li><a href="{!! url('1.0/citations/presentations?email='.$email) !!}">{!! url('1.0/citations/presentations?email='.$email) !!}</a></li>
+  <li><a href="{!! url('1.0/citations/theses?email='.$email) !!}">{!! url('1.0/citations/theses?email='.$email) !!}</a></li>
 </ul>
 @endsection
