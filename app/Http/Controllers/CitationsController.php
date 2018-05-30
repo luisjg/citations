@@ -15,7 +15,6 @@ use App\Exceptions\NoDataException;
 
 use DB;
 use Log;
-use Route;
 
 class CitationsController extends Controller
 {
