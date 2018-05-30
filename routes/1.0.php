@@ -11,6 +11,16 @@
 |
 */
 
+$router->get('colleges/{college_id}/citations[/{type}]', [
+    'as' => 'colleges.citations.index',
+    'uses' => 'CitationsController@collegeIndex',
+]);
+
+$router->get('departments/{dept_id}/citations[/{type}]', [
+    'as' => 'departments.citations.index',
+    'uses' => 'CitationsController@departmentIndex',
+]);
+
 $router->get('citations/{id:[0-9]+}', [
     'as' => 'citations.show',
     'uses' => 'CitationsController@show',

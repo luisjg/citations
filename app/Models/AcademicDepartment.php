@@ -10,6 +10,10 @@ class AcademicDepartment extends Model
 	protected $primaryKey = "entities_id";
 	public $incrementing = false;
 
+	public function users() {
+		return $this->belongsToMany('App\User', 'nemo.memberships', 'parent_entities_id', 'individuals_id');
+	}
+
 	/**
 	 * Query scope to filter records by the department ID and without having
 	 * to prepend the "academic_departments:" collection manually.
