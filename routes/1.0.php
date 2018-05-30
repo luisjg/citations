@@ -31,7 +31,7 @@ $router->get('citations[/{type}]', [
     'uses' => 'CitationsController@index',
 ]);
 
-$router->post('citations', [
+/*$router->post('citations', [
     'as' => 'citations.store',
     'uses' => 'CitationsController@store',
 ]);
@@ -56,4 +56,4 @@ $router->put('citations/{id:[0-9]+}', [
 $router->delete('citations[/{id:[0-9]+}]', [
     'as' => 'citations.destroy',
     'uses' => 'CitationsController@destroy'
-]);
+]);*/
