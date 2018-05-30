@@ -86,6 +86,7 @@ function fixCitationAttributes(&$citation) {
 		$member['profile'] = (!empty($member['facultyUrl'])
 			? $member['facultyUrl']['url'] : null);
 		$member['precedence'] = "" . $member['pivot']['precedence'];
+		$member['role'] = $member['pivot']['role_position'];
 
 		// unset the pivot and facultyUrl object for the member
 		unset($member['pivot']);

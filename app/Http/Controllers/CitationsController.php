@@ -84,14 +84,17 @@ class CitationsController extends Controller
      * @return Builder
      */
     protected function getBaseCitationQuery() {
-        return Citation::with(
+        return Citation::with([
             'metadata',
             'collection',
             'document',
             'publishedMetadata',
             'publisher',
+            'members' => function($q) {
+                return $q->orderBy('precedence', 'ASC');
+            },
             'members.facultyUrl'
-        );
+        ]);
     }
 
     /**
