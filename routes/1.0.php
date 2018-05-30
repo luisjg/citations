@@ -31,6 +31,8 @@ $router->get('citations[/{type}]', [
     'uses' => 'CitationsController@index',
 ]);
 
+// Creation, modification, and deletion routes are commented-out until we
+// can get the API keys or OAuth stuff straightened-out
 /*$router->post('citations', [
     'as' => 'citations.store',
     'uses' => 'CitationsController@store',
