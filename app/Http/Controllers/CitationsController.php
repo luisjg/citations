@@ -15,6 +15,7 @@ use App\Exceptions\NoDataException;
 
 use DB;
 use Log;
+use Route;
 
 class CitationsController extends Controller
 {
@@ -214,7 +215,7 @@ class CitationsController extends Controller
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
         // generate the response and send everything back
-        return generateCollectionResponse($type, $citations->get());
+        return generateCollectionResponse($request, $type, $citations->get());
     }
 
     /**
@@ -232,7 +233,7 @@ class CitationsController extends Controller
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
         // generate the response and send everything back
-        return generateCollectionResponse($type, $citations->get());
+        return generateCollectionResponse($request, $type, $citations->get());
     }
 
     /**
@@ -249,7 +250,7 @@ class CitationsController extends Controller
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
         // generate the response and send everything back
-        return generateCollectionResponse($type, $citations->get());
+        return generateCollectionResponse($request, $type, $citations->get());
     }
 
     /**
@@ -267,7 +268,7 @@ class CitationsController extends Controller
         $type = $citation->citation_type;
 
         // generate the response and send everything back
-        return generateCollectionResponse($type, $citation);
+        return generateCollectionResponse($request, $type, $citation);
     }
 
     /*
@@ -387,12 +388,12 @@ class CitationsController extends Controller
             DB::rollBack();
             logErrorException('Could not create citation.', $e);
             return generateErrorResponse(
-                'The citation could not be created', 500, false
+                $request, 'The citation could not be created', 500, false
             );
         }
 
         // return the success response
-        return generateMessageResponse('The citation has been added successfully');
+        return generateMessageResponse($request, 'The citation has been added successfully');
     }
 
     /**
@@ -491,12 +492,12 @@ class CitationsController extends Controller
             DB::rollBack();
             logErrorException('Could not update citation.', $e);
             return generateErrorResponse(
-                'The citation could not be updated', 500, false
+                $request, 'The citation could not be updated', 500, false
             );
         }
 
         // return the success response
-        return generateMessageResponse('The citation has been updated successfully');
+        return generateMessageResponse($request, 'The citation has been updated successfully');
     }
 
     /**
@@ -626,11 +627,11 @@ class CitationsController extends Controller
             DB::rollBack();
             logErrorException('Could not delete citation(s): [' .
                 implode(",", $citationIds) . "].", $e);
-            return generateErrorResponse('The citation(s) could not be deleted', 500);
+            return generateErrorResponse($request, 'The citation(s) could not be deleted', 500);
         }
 
         // return the success response
-        return generateMessageResponse(
+        return generateMessageResponse($request, 
             count($citationIds) . " citation(s) were deleted successfully!"
         );
     }
@@ -680,12 +681,12 @@ class CitationsController extends Controller
             DB::rollBack();
             logErrorException("Could not add member(s) to citation {$id}: [" .
                 implode(",", array_keys($people)) . "].", $e);
-            return generateErrorResponse('Could not add ' . count($people) .
+            return generateErrorResponse($request, 'Could not add ' . count($people) .
                 ' member(s) to the citation', 500);
         }
 
         // return the success response
-        return generateMessageResponse(
+        return generateMessageResponse($request, 
             count($people) . " member(s) added to the citation successfully!"
         );
     }
@@ -727,12 +728,12 @@ class CitationsController extends Controller
             DB::rollBack();
             logErrorException("Could not remove member(s) from citation {$id}: [" .
                 implode(",", $people) . "].", $e);
-            return generateErrorResponse('Could not remove ' . count($people) .
+            return generateErrorResponse($request, 'Could not remove ' . count($people) .
                 ' member(s) from the citation', 500);
         }
 
         // return the success response
-        return generateMessageResponse(
+        return generateMessageResponse($request, 
             count($people) . " member(s) removed from the citation successfully!"
         );
     }

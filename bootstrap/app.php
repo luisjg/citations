@@ -117,4 +117,12 @@ $app->router->group([
     require __DIR__.'/../routes/1.0.php';
 });
 
+// v1.1
+$app->router->group([
+    'namespace' => 'App\Http\Controllers',
+    'prefix' => '1.1'
+], function ($router) {
+    require __DIR__.'/../routes/1.1.php';
+});
+
 return $app;

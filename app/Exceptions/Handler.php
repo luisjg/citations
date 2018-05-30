@@ -55,16 +55,19 @@ class Handler extends ExceptionHandler
     {
         if($e instanceof ModelNotFoundException) {
             return response(generateErrorResponse(
+                $request,
                 "The specified resource could not be found"
             ), 404);
         }
         else if($e instanceof NotFoundHttpException) {
             return response(generateErrorResponse(
+                $request,
                 "That URL does not exist"
             ), 404);
         }
         else if($e instanceof HttpException) {
             return response(generateErrorResponse(
+                $request,
                 "An unknown error has occurred",
                 500
             ), 500);
@@ -72,12 +75,14 @@ class Handler extends ExceptionHandler
         else if($e instanceof InvalidPayloadTypeException ||
             $e instanceof InvalidRequestException) {
             return response(generateErrorResponse(
+                $request,
                 $e->getMessage(),
                 400
             ), 400);
         }
         else if($e instanceof NoDataException) {
             return response(generateErrorResponse(
+                $request,
                 $e->getMessage(),
                 404
             ), 404);
