@@ -20,7 +20,7 @@
   "success": "true",
   "api": "citations",
   "version": "1.0",
-  "collection": "article",
+  "collection": "articles",
   "count": "1",
   "article": {
     "citation_id": "citations:1",
@@ -40,7 +40,8 @@
           "middle_name": null,
           "last_name": "Gottfried",
           "profile": "https://academics.csun.edu/faculty/adele.gottfried",
-          "precedence": "0"
+          "precedence": "0",
+          "role": "author"
         }
       ]
     },
