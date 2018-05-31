@@ -18,7 +18,7 @@ class CitationMember extends Model
 	 * @return Builder
 	 */
 	public function scopeWhereCitationId($query, $id) {
-		return $this->where("parent_entities_id", "citations:{$id}");
+		return $query->where("parent_entities_id", "citations:{$id}");
 	}
 
 	/**
@@ -29,6 +29,6 @@ class CitationMember extends Model
 	 * @return Builder
 	 */
 	public function scopeWhereMembersId($query, $membersId) {
-		return $this->where("individuals_id", $membersId);
+		return $query->where("individuals_id", $membersId);
 	}
 }

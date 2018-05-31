@@ -4,18 +4,19 @@
  * Generates a response array based upon a given static message as well as an
  * optional response code and optional success value.
  *
+ * @param Request $request The request to which we are responding
  * @param string $message Some kind of static message
  * @param int $code Optional response code (defaults to 200)
  * @param bool $success Optional success value (defaults to true)
  *
  * @return array
  */
-function generateMessageResponse($message, $code=200, $success=true) {
+function generateMessageResponse($request, $message, $code=200, $success=true) {
 	return [
 		"status" => "$code",
 		"success" => ($success ? "true" : "false"),
 		"api" => "citations",
-		"version" => "1.0",
+		"version" => $request->headers->get('X-API-VERSION', '1.0'),
 		"message" => $message
 	];
 }
@@ -24,20 +25,22 @@ function generateMessageResponse($message, $code=200, $success=true) {
  * Generates a response array based upon a given error message as well as an
  * optional response code and optional success value.
  *
+ * @param Request $request The request to which we are responding
  * @param string $message Some kind of error message
  * @param int $code Optional response code (defaults to 404)
  * @param bool $success Optional success value (defaults to false)
  *
  * @return array
  */
-function generateErrorResponse($message, $code=404, $success=false) {
-	return generateMessageResponse($message, $code, $success);
+function generateErrorResponse($request, $message, $code=404, $success=false) {
+	return generateMessageResponse($request, $message, $code, $success);
 }
 
 /**
  * Generates a response array based upon a given collection type, collection
  * or model with data, an optional code, and an optional success value.
  *
+ * @param Request $request The request to which we are responding
  * @param string $collectionType Some kind of collection name (like "articles")
  * @param Collection|Model $data Some kind of data collection or individual model
  * @param int $code Optional response code (defaults to 200)
@@ -45,13 +48,14 @@ function generateErrorResponse($message, $code=404, $success=false) {
  *
  * @return array
  */
-function generateCollectionResponse($collectionType, $data, $code=200, $success=true) {
+function generateCollectionResponse($request, $collectionType, $data, $code=200, $success=true) {
 	$isCollection = is_a($data, 'Illuminate\Support\Collection');
+
 	$arr = [
 		"status" => "$code",
 		"success" => ($success ? "true" : "false"),
 		"api" => "citations",
-		"version" => "1.0",
+		"version" => $request->headers->get('X-API-VERSION', '1.0'),
 		"collection" => $collectionType,
 		"count" => "" . ($isCollection ? $data->count() : 1),
 		$collectionType => $data,
