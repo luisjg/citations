@@ -54,6 +54,66 @@ class ScopusController extends Controller
 	}
 
 	/**
+	 * Generates the array for an entry based upon the JSON object passed
+	 * as an argument. This can also return null if the entry type is invalid.
+	 *
+	 * @param JSON $entry The entry to parse
+	 * @return array|null
+	 */
+	protected function generateEntryArray($entry) {
+		$entryArray = [];
+
+		// let's get some information about the publication
+		$entryType = '';
+		if($entry->subtype == 'ar' || $entry->subtype == 'cp') {
+			// article or conference paper (Scopus classifies conference
+			// papers under searches for articles as well)
+			$entryType = 'article';
+		}
+		else if($entry->subtype == 'bk') {
+			$entryType = 'book';
+		}
+		else if($entry->subtype == 'ch') {
+			$entryType = 'chapter';
+		}
+
+		// if we do not have a valid entry type, just skip it
+		if(empty($entryType)) {
+			return null;
+		}
+
+		// is there an author affiliation link? If so, we can use that
+		// later on to retrieve the set of collaborators
+		foreach($entry->link as $link) {
+			if($link->{'@ref'} == 'author-affiliation') {
+				$entryArray['author_affiliation'] = $link->{'@href'};
+			}
+		}
+
+		// grab the title and creator information
+		$entryArray['title'] = $entry->{'dc:title'};
+		$entryArray['creator'] = $entry->{'dc:creator'};
+
+		$entryArray['publication'] = [
+			'type' => $entryType,
+			'name' => $entry->{'prism:publicationName'},
+			'volume' => $entry->{'prism:volume'},
+			'issue' => $entry->{'prism:issueIdentifier'},
+			'pages' => $entry->{'prism:pageRange'},
+		];
+
+		// everything should have a published date
+		$entryArray['publication']['published_date'] = $entry->{'prism:coverDate'};
+
+		// let's get some information about the document
+		$entryArray['document'] = [
+			'doi' => $entry->{'prism:doi'},
+		];
+
+		return $entryArray;
+	}
+
+	/**
 	 * Performs a Scopus query and returns an array containing the set of
 	 * citation metadata for the specified URI.
 	 *
@@ -80,41 +140,11 @@ class ScopusController extends Controller
 
 		// let's build up the citations array
 		foreach($search_results->entry as $entry) {
-			$entryArray = [];
-
-			// is there an author affiliation link? If so, we can use that
-			// later on to retrieve the set of collaborators
-			foreach($entry->link as $link) {
-				if($link->{'@ref'} == 'author-affiliation') {
-					$entryArray['author_affiliation'] = $link->{'@href'};
-				}
-			}
-
-			// grab the title and creator information
-			$entryArray['title'] = $entry->{'dc:title'};
-			$entryArray['creator'] = $entry->{'dc:creator'};
-
-			// let's get some information about the publication
-			if($entry->subtype == 'ar') {
-				// this entry is some kind of article
-				$entryArray['publication'] = [
-					'name' => $entry->{'prism:publicationName'},
-					'volume' => $entry->{'prism:volume'},
-					'issue' => $entry->{'prism:issueIdentifier'},
-					'pages' => $entry->{'prism:pageRange'},
-				];
-			}
-
-			// everything should have a published date
-			$entryArray['publication']['published_date'] = $entry->{'prism:coverDate'};
-
-			// let's get some information about the document
-			$entryArray['document'] = [
-				'doi' => $entry->{'prism:doi'},
-			];
-
 			// add the entry onto the set of citations
-			$citations[] = $entryArray;
+			$entryArr = $this->generateEntryArray($entry);
+			if(!empty($entryArr)) {
+				$citations[] = $entryArr;
+			}
 		}
 
 		// if we do have a "next" link, we will recurse, grab the next page
