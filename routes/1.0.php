@@ -11,6 +11,16 @@
 |
 */
 
+$router->get('import/orcid/{orcid}', [
+    'as' => 'citations.import.orcid',
+    'uses' => 'ScopusController@importByORCID',
+]);
+
+$router->get('import/author/{author_id}', [
+    'as' => 'citations.import.author',
+    'uses' => 'ScopusController@importByAuthorId',
+]);
+
 $router->get('citations/{id:[0-9]+}', [
     'as' => 'citations.show',
     'uses' => 'CitationsController@show',
