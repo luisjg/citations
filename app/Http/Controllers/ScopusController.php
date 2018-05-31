@@ -76,6 +76,10 @@ class ScopusController extends Controller
 		else if($entry->subtype == 'ch') {
 			$entryType = 'chapter';
 		}
+		else
+		{
+			$entryType = 'unknown (' . $entry->subtype . ')';
+		}
 
 		// if we do not have a valid entry type, just skip it
 		if(empty($entryType)) {
@@ -94,12 +98,18 @@ class ScopusController extends Controller
 		$entryArray['title'] = $entry->{'dc:title'};
 		$entryArray['creator'] = $entry->{'dc:creator'};
 
+		// figure out the publication data
+		$pubName = (!empty($entry->{'prism:publicationName'}) ? $entry->{'prism:publicationName'} : null);
+		$pubVol = (!empty($entry->{'prism:volume'}) ? $entry->{'prism:volume'} : null);
+		$pubIssue = (!empty($entry->{'prism:issueIdentifier'}) ? $entry->{'prism:issueIdentifier'} : null);
+		$pubPages = (!empty($entry->{'prism:pageRange'}) ? $entry->{'prism:pageRange'} : null);
+
 		$entryArray['publication'] = [
 			'type' => $entryType,
-			'name' => $entry->{'prism:publicationName'},
-			'volume' => $entry->{'prism:volume'},
-			'issue' => $entry->{'prism:issueIdentifier'},
-			'pages' => $entry->{'prism:pageRange'},
+			'name' => $pubName,
+			'volume' => $pubVol,
+			'issue' => $pubIssue,
+			'pages' => $pubPages,
 		];
 
 		// everything should have a published date
@@ -107,7 +117,9 @@ class ScopusController extends Controller
 
 		// let's get some information about the document
 		$entryArray['document'] = [
-			'doi' => $entry->{'prism:doi'},
+			'issn' => (!empty($entry->{'prism:issn'}) ? $entry->{'prism:issn'} : null),
+			'isbn' => (!empty($entry->{'prism:isbn'}) ? $entry->{'prism:isbn'} : null),
+			'doi' => (!empty($entry->{'prism:doi'}) ? $entry->{'prism:doi'} : null),
 		];
 
 		return $entryArray;
@@ -119,12 +131,11 @@ class ScopusController extends Controller
 	 *
 	 * @param string $startUri The URI to start from; this URI grabs the
 	 * initial set of data but the pagination links will be followed
+	 * @param array $citations Array of existing citations for recursion
 	 *
 	 * @return array
 	 */
-	protected function doScopusCitationQuery($startUri) {
-		$citations = [];
-
+	protected function doScopusCitationQuery($startUri, $citations=[]) {
 		// perform the Guzzle call and retrieve the search results
 		$response = $this->doGuzzle($startUri);
 		$search_results = $response->{'search-results'};
@@ -150,7 +161,7 @@ class ScopusController extends Controller
 		// if we do have a "next" link, we will recurse, grab the next page
 		// of results, and add them onto the existing array
 		if(!empty($next)) {
-			return $citations + $this->doScopusCitationQuery($next);
+			return $this->doScopusCitationQuery($next, $citations);
 		}
 
 		// we are at the end of the search results, so return the citations
