@@ -49,6 +49,17 @@ class User extends Model
 	 * @return Builder
 	 */
 	public function scopeWhereOrcid($query, $orcid) {
-		return $query->where('orcid_id', $orcid);
+		return $query->where('orcid', $orcid);
+	}
+
+	/**
+	 * Returns the formatted name of the document creator in Scopus. This will
+	 * be used for generating collaboration strings dynamically.
+	 *
+	 * @example "Edmunds P."
+	 * @return string
+	 */
+	public function getScopusFormattedNameAttribute() {
+		return $this->last_name . ' ' . $this->first_name[0] . '.';
 	}
 }

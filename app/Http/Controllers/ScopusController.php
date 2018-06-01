@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Citation;
+use App\CitationMember;
+use App\CitationMetadata;
+use App\Collection;
+use App\Document;
+use App\PublishedMetadata;
 use App\User;
 
 use App\Exceptions\InvalidPayloadTypeException;
@@ -122,10 +127,8 @@ class ScopusController extends Controller
 			'volume' => $pubVol,
 			'issue' => $pubIssue,
 			'pages' => $pubPages,
+			'published_date' => $entry->{'prism:coverDate'},
 		];
-
-		// everything should have a published date
-		$entryArray['publication']['published_date'] = $entry->{'prism:coverDate'};
 
 		// let's get some information about the document
 		$entryArray['document'] = [
@@ -195,17 +198,106 @@ class ScopusController extends Controller
 	 * @return int
 	 */
 	protected function insertCitationRecords($user, $citations) {
-		try {
-			DB::beginTransaction();
+		// let's remove all citations in the array that are already associated
+		// with this individual
+		$existing_ids = $user->citations->pluck('scopus_id')->toArray();
+		$citations = array_where($citations, function($value, $key) use ($existing_ids) {
+			return !in_array($value['scopus_id'], $existing_ids);
+		});
 
-			// DB operations
+		// only attempt the DB insertion if there are new citations
+		if(!empty($citations)) {
+			try {
+				DB::beginTransaction();
 
-			DB::commit();
-		}
-		catch(\Exception $e) {
-			DB::rollBack();
-            logErrorException('Could not import ' . count($citations) . ' citation(s).', $e);
-            return -1;
+				// grab the next auto-incrementing ID
+	            $nextId = 1;
+	            $latestCitation = Citation::orderBy('id', 'DESC')->first();
+	            if(!empty($latestCitation)) {
+	                $nextId = $latestCitation->id + 1;
+	            }
+
+	            $citationInserts = [];
+	            $citationMemberInserts = [];
+	            $citationMetadataInserts = [];
+	            $collectionInserts = [];
+	            $documentInserts = [];
+	            $publishedMetadataInserts = [];
+
+	            // Assign a citation collection ID to each entry; I know this
+	            // isn't the best way to do it but I can't think of any other
+	            // way that doesn't involve eight separate database calls per
+	            // citation. I'm doing everything I can to do these imports as
+	            // batch operations to keep the number of database calls the
+	            // same regardless of how many citations there are to import.
+	            foreach($citations as $citation) {
+	            	$citationId = 'citations:' . $nextId++;
+
+	            	$citationInserts[] = [
+	            		'citation_id' => $citationId,
+	            		'citation_type' => $citation['publication']['type'],
+	            		'collaborators' => $citation['creator'],
+	            	];
+
+	            	$citationMemberInserts[] = [
+	            		'parent_entities_id' => $citationId,
+	            		'individuals_id' => $user->user_id,
+	            		'role_position' => 'author',
+	            		'precedence' => '0',
+	            	];
+
+	            	// special care needs to be taken with the citation metadata
+	            	// so the correct column is filled in for publication title
+	            	$citationMetadata = [
+	            		'citation_id' => $citationId,
+	            		'title' => $citation['title'],
+	            	];
+	            	if($citation['type'] == 'book') {
+	            		$citationMetadata['book_title'] = $citation['publication']['name'];
+	            	}
+	            	else if($citation['type'] == 'article') {
+	            		$citationMetadata['journal'] = $citation['publication']['name'];
+	            	}
+	            	$citationMetadataInserts[] = $citationMetadata;
+
+	            	$collectionInserts[] = [
+	            		'citation_id' => $citationId,
+	            		'number' => $citation['publication']['issue'],
+	            		'volume' => $citation['publication']['volume'],
+	            		'pages' => $citation['publication']['pages'],
+	            	];
+
+	            	$documentInserts[] = [
+	            		'citation_id' => $citationId,
+	            		'doi' => $citation['document']['doi'],
+	            		'issn' => $citation['document']['issn'],
+	            		'isbn' => $citation['document']['isbn'],
+	            	];
+
+	            	$publishedMetadataInserts[] = [
+	            		'citation_id' => $citationId,
+	            		'date' => $citation['publication']['published_date'],
+	            	];
+
+	            	// we are not getting back publisher information from Scopus
+	            	// so there are no inserts for the Publisher model
+	            }
+
+	            // perform the inserts
+	            Citation::insert($citationInserts);
+	            CitationMember::insert($citationMemberInserts);
+	            CitationMetadata::insert($citationMetadataInserts);
+	            Collection::insert($collectionInserts);
+	            Document::insert($documentInserts);
+	            PublishedMetadata::insert($publishedMetadataInserts);
+
+				DB::commit();
+			}
+			catch(\Exception $e) {
+				DB::rollBack();
+	            logErrorException('Could not import ' . count($citations) . ' citation(s).', $e);
+	            return -1;
+			}
 		}
 
 		return count($citations);
