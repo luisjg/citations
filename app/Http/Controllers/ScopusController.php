@@ -95,7 +95,7 @@ class ScopusController extends Controller
 		}
 
 		// grab the Scopus ID, title, and creator information
-		$entryArray['scopus_id'] = $entry->{'dc:identifier'};
+		$entryArray['scopus_id'] = str_ireplace('SCOPUS_ID:', '', $entry->{'dc:identifier'});
 		$entryArray['title'] = (!empty($entry->{'dc:title'}) ? $entry->{'dc:title'} : null);
 		$entryArray['creator'] = $entry->{'dc:creator'};
 
