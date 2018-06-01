@@ -26,6 +26,29 @@ class ScopusController extends Controller
 	protected $guzzle;
 
 	/**
+	 * Array of document types from Scopus mapped to citation types.
+	 *
+	 * @var array
+	 * @see https://dev.elsevier.com/tips/ScopusSearchTips.htm
+	 */
+	protected $scopusTypes = [
+		'ar' => 'article',
+		'ab' => 'abstract_report',
+		'ip' => 'article_in_press',
+		'bk' => 'book',
+		'ch' => 'chapter',
+		'cp' => 'conference_paper',
+		'cr' => 'conference_review',
+		'ed' => 'editorial',
+		'er' => 'erratum',
+		'le' => 'letter',
+		'no' => 'note',
+		'pr' => 'press_release',
+		're' => 'review',
+		'sh' => 'short_survey',
+	];
+
+	/**
 	 * Constructs a new ScopusController instance.
 	 */
 	public function __construct() {
@@ -65,24 +88,12 @@ class ScopusController extends Controller
 
 		// let's get some information about the publication
 		$entryType = '';
-		if($entry->subtype == 'ar' || $entry->subtype == 'cp') {
-			// article or conference paper (Scopus classifies conference
-			// papers under searches for articles as well)
-			$entryType = 'article';
-		}
-		else if($entry->subtype == 'bk') {
-			$entryType = 'book';
-		}
-		else if($entry->subtype == 'ch') {
-			$entryType = 'chapter';
+		if(in_array($entry->subtype, array_keys($this->scopusTypes))) {
+			$entryType = $this->scopusTypes[$entry->subtype];
 		}
 		else
 		{
-			$entryType = 'unknown (' . $entry->subtype . ')';
-		}
-
-		// if we do not have a valid entry type, just skip it
-		if(empty($entryType)) {
+			// we do not have a valid entry type so just skip it
 			return null;
 		}
 
@@ -172,6 +183,17 @@ class ScopusController extends Controller
 
 		// we are at the end of the search results, so return the citations
 		return $citations;
+	}
+
+	/**
+	 * Inserts the citations array into the database. Returns a count representing
+	 * the number of records that were inserted successfully.
+	 *
+	 * @param array $citations The array of citations generated from Scopus
+	 * @return int
+	 */
+	protected function insertCitationRecords($citations) {
+
 	}
 
 	/**
