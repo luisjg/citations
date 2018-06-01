@@ -75,12 +75,17 @@ class Citation extends Model
 		}
 
 		$doi = trim($this->document->doi);
+		$issn = trim($this->document->issn);
+		$isbn = trim($this->document->isbn);
 		$handle = trim($this->document->handle);
 		$url = trim($this->document->url);
 
 		// if any of the document attributes are filled, we can consider this
 		// citation to be published
-		return (!empty($doi) || !empty($handle) || !empty($url));
+		return (
+			!empty($doi) || !empty($issn) || !empty($isbn) ||
+				!empty($handle) || !empty($url)
+		);
 	}
 
 	/**

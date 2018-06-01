@@ -13,6 +13,8 @@ class Document extends Model
 	protected $fillable = [
 		'citation_id',
 		'doi',
+		'issn',
+		'isbn',
 		'handle',
 		'url',
 	];
