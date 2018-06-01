@@ -255,7 +255,7 @@ class ScopusController extends Controller
 	            		'book_title' => null,
 	            		'journal' => null,
 	            	];
-	            	if($citation['publication']['type'] == 'book') {
+	            	if($citation['publication']['type'] == 'chapter') {
 	            		$citationMetadata['book_title'] = $citation['publication']['name'];
 	            	}
 	            	else if($citation['publication']['type'] == 'article') {
