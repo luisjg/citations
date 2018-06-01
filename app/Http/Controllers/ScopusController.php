@@ -142,6 +142,11 @@ class ScopusController extends Controller
 		$search_results = $response->{'search-results'};
 		$next = "";
 
+		// if no results were retrieved, return an empty array
+		if($search_results->{'opensearch:totalResults'} == '0') {
+			return [];
+		}
+
 		// do we have a "next" link? If so, that describes the next page
 		// of the results we will need to retrieve
 		foreach($search_results->link as $link) {
