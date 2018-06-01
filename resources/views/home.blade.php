@@ -85,6 +85,32 @@
   <li><a href="{!! url('1.0/citations/theses') !!}">{!! url('1.0/citations/theses') !!}</a></li>
 </ul>
 <h2 id="subcollections" class="type--header type--thin">Subcollections</h2>
+<strong>All Citations per Department/College</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations') !!}">{!! url('1.1/departments/189/citations') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations') !!}">{!! url('1.1/colleges/52/citations') !!}</a></li>
+</ul>
+<strong>Recent Number of Citations per Department/College</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations?recent=20') !!}">{!! url('1.1/departments/189/citations?recent=20') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations?recent=20') !!}">{!! url('1.1/colleges/52/citations?recent=20') !!}</a></li>
+</ul>
+<strong>Specific Citation Type per Department</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations/articles') !!}">{!! url('1.1/departments/189/citations/articles') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/books') !!}">{!! url('1.1/departments/189/citations/books') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/chapters') !!}">{!! url('1.1/departments/189/citations/chapters') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/presentations') !!}">{!! url('1.1/departments/189/citations/presentations') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/theses') !!}">{!! url('1.1/departments/189/citations/theses') !!}</a></li>
+</ul>
+<strong>Specific Citation Type per College</strong>
+<ul>
+  <li><a href="{!! url('1.1/colleges/52/citations/articles') !!}">{!! url('1.1/colleges/52/citations/articles') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/books') !!}">{!! url('1.1/colleges/52/citations/books') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/chapters') !!}">{!! url('1.1/colleges/52/citations/chapters') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/presentations') !!}">{!! url('1.1/colleges/52/citations/presentations') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses') !!}">{!! url('1.1/colleges/52/citations/theses') !!}</a></li>
+</ul>
 <strong>Specified person's Citations</strong>
 <ul>
   <li><a href="{!! url('1.0/citations?email='.$email) !!}">{!! url('1.0/citations?email='.$email) !!}</a></li>

@@ -11,14 +11,14 @@
 |
 */
 
-$router->get('import/orcid/{orcid}', [
-    'as' => 'citations.import.orcid',
-    'uses' => 'ScopusController@importByORCID',
+$router->get('colleges/{college_id}/citations[/{type}]', [
+    'as' => 'colleges.citations.index',
+    'uses' => 'CitationsController@collegeIndex',
 ]);
 
-$router->get('import/author/{author_id}', [
-    'as' => 'citations.import.author',
-    'uses' => 'ScopusController@importByAuthorId',
+$router->get('departments/{dept_id}/citations[/{type}]', [
+    'as' => 'departments.citations.index',
+    'uses' => 'CitationsController@departmentIndex',
 ]);
 
 $router->get('citations/{id:[0-9]+}', [

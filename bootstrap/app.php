@@ -69,6 +69,7 @@ $app->singleton(
 
 $app->middleware([
    CSUNMetaLab\LumenForceHttps\Http\Middleware\ForceHttps::class,
+   App\Http\Middleware\APIVersioning::class,
 ]);
 
 /*
@@ -119,6 +120,14 @@ $app->router->group([
     'prefix' => '1.0'
 ], function ($router) {
     require __DIR__.'/../routes/1.0.php';
+});
+
+// v1.1
+$app->router->group([
+    'namespace' => 'App\Http\Controllers',
+    'prefix' => '1.1'
+], function ($router) {
+    require __DIR__.'/../routes/1.1.php';
 });
 
 return $app;
