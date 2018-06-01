@@ -235,6 +235,7 @@ class ScopusController extends Controller
 
 	            	$citationInserts[] = [
 	            		'citation_id' => $citationId,
+	            		'scopus_id' => $citation['scopus_id'],
 	            		'citation_type' => $citation['publication']['type'],
 	            		'collaborators' => $citation['creator'],
 	            	];
@@ -251,11 +252,13 @@ class ScopusController extends Controller
 	            	$citationMetadata = [
 	            		'citation_id' => $citationId,
 	            		'title' => $citation['title'],
+	            		'book_title' => null,
+	            		'journal' => null,
 	            	];
-	            	if($citation['type'] == 'book') {
+	            	if($citation['publication']['type'] == 'book') {
 	            		$citationMetadata['book_title'] = $citation['publication']['name'];
 	            	}
-	            	else if($citation['type'] == 'article') {
+	            	else if($citation['publication']['type'] == 'article') {
 	            		$citationMetadata['journal'] = $citation['publication']['name'];
 	            	}
 	            	$citationMetadataInserts[] = $citationMetadata;
@@ -313,7 +316,7 @@ class ScopusController extends Controller
 	 *
 	 * @return array
 	 */
-	protected function generateImportResponse($citations, $numImported) {
+	protected function generateImportResponse(Request $request, $citations, $numImported) {
 		if(count($citations) == 0) {
 			// no citations retrieved from Scopus
 			// (not successful but the request did not fail)
@@ -338,7 +341,7 @@ class ScopusController extends Controller
 		}
 
         // new citations were imported
-		return generateMessageResponse(
+		return generateMessageResponse($request,
 			count($citations) . ' new citation(s) imported successfully'
 		);
 	}
@@ -362,7 +365,7 @@ class ScopusController extends Controller
 
 		// import the records and return a JSON response
 		$numImported = $this->insertCitationRecords($user, $citations);
-		return $this->generateImportResponse($citations, $numImported);
+		return $this->generateImportResponse($request, $citations, $numImported);
 	}
 
 	/**
@@ -384,6 +387,6 @@ class ScopusController extends Controller
 
         // import the records and return a JSON response
 		$numImported = $this->insertCitationRecords($user, $citations);
-		return $this->generateImportResponse($citations, $numImported);
+		return $this->generateImportResponse($request, $citations, $numImported);
 	}
 }
