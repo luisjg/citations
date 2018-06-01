@@ -12,6 +12,8 @@ class Citation extends Model
 
 	protected $fillable = [
 		'citation_id',
+		'entities_id',
+		'scopus_id',
 		'citation_type',
 		'collaborators',
 		'citation_text',
