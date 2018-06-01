@@ -187,13 +187,68 @@ class ScopusController extends Controller
 
 	/**
 	 * Inserts the citations array into the database. Returns a count representing
-	 * the number of records that were inserted successfully.
+	 * the number of records that were inserted successfully. Returns -1 if there
+	 * was an error inserting records.
 	 *
+	 * @param User $user The user to whom these citations will be associated
 	 * @param array $citations The array of citations generated from Scopus
 	 * @return int
 	 */
-	protected function insertCitationRecords($citations) {
+	protected function insertCitationRecords($user, $citations) {
+		try {
+			DB::beginTransaction();
 
+			// DB operations
+
+			DB::commit();
+		}
+		catch(\Exception $e) {
+			DB::rollBack();
+            logErrorException('Could not import ' . count($citations) . ' citation(s).', $e);
+            return -1;
+		}
+
+		return count($citations);
+	}
+
+	/**
+	 * Generates and returns an array representing an import response. The
+	 * array of citations that were imported and the number that was actually
+	 * imported are included as parameters.
+	 *
+	 * @param array $citations The set of citations that were generated
+	 * @param int $numImported The number of citations that were actually imported
+	 *
+	 * @return array
+	 */
+	protected function generateImportResponse($citations, $numImported) {
+		if(count($citations) == 0) {
+			// no citations retrieved from Scopus
+			// (not successful but the request did not fail)
+			return generateMessageResponse(
+                $request, 'No citations to import for that person', 200, false
+            );
+		}
+		else
+		{
+			if($numImported == -1) {
+				// an error occurred during import
+				return generateErrorResponse(
+                	$request, 'The ' . count($citations) . ' citation(s) could not be imported', 500
+            	);
+			}
+			else if($numImported == 0) {
+				// no new citations to import
+				return generateMessageResponse(
+					$request, 'There are no new citations to import for that person', 200
+				);
+			}
+		}
+
+        // new citations were imported
+		return generateMessageResponse(
+			count($citations) . ' new citation(s) imported successfully'
+		);
 	}
 
 	/**
@@ -204,12 +259,18 @@ class ScopusController extends Controller
 	 * @return Response
 	 */
 	public function importByORCID(Request $request, $orcid) {
+		// retrieve the user by ORCID first
+		$user = User::with('citations')->whereOrcid($orcid)
+			->firstOrFail();
+
 		// perform the Scopus query
-		$response = $this->doScopusCitationQuery(
+		$citations = $this->doScopusCitationQuery(
 			"/content/search/scopus?query=orcid($orcid)"
 		);
 
-        return response()->json($response);
+		// import the records and return a JSON response
+		$numImported = $this->insertCitationRecords($user, $citations);
+		return $this->generateImportResponse($citations, $numImported);
 	}
 
 	/**
@@ -220,11 +281,17 @@ class ScopusController extends Controller
 	 * @return Response
 	 */
 	public function importByAuthorId(Request $request, $author_id) {
+		// retrieve the user by author ID first
+		$user = User::with('citations')->whereAuthorId($author_id)
+			->firstOrFail();
+
 		// perform the Scopus query
-		$response = $this->doScopusCitationQuery(
+		$citations = $this->doScopusCitationQuery(
 			"/content/search/scopus?query=au-id($author_id)"
 		);
 
-        return response()->json($response);
+        // import the records and return a JSON response
+		$numImported = $this->insertCitationRecords($user, $citations);
+		return $this->generateImportResponse($citations, $numImported);
 	}
 }
