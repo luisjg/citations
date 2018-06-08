@@ -12,8 +12,14 @@ class KeysTableSeeder extends Seeder
      */
     public function run()
     {
+        // THIS SEEDER SHOULD ONLY BE RUN DURING DEVELOPMENT AND TO GENERATE
+        // AN INITIAL SET OF API KEYS; THIS SEEDER DESTROYS DATA BEFORE IT
+        // RE-CREATES IT
+        
         $table = (new ApiKey())->getTable();
+        $scopePivotTable = 'key_scope';
         DB::table($table)->delete();
+        DB::table($scopePivotTable)->delete();
 
         // key with all scopes
         $allKey = ApiKey::create([
