@@ -17,7 +17,7 @@ class ApiScope extends Model
 	 * @return BelongsToMany
 	 */
 	public function permissions() {
-		return $this->belongsToMany('App\ApiPermission', 'permission_scope', 'permission', 'scope');
+		return $this->belongsToMany('App\ApiPermission', 'permission_scope', 'scope', 'permission');
 	}
 
 	/**

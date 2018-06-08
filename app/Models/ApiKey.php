@@ -16,7 +16,7 @@ class ApiKey extends Model
 	 * @return BelongsToMany
 	 */
 	public function scopes() {
-		return $this->belongsToMany('App\ApiScope', 'key_scope', 'scope', 'key_id');
+		return $this->belongsToMany('App\ApiScope', 'key_scope', 'key_id', 'scope');
 	}
 
 	/**

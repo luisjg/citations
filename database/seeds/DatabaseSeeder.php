@@ -14,5 +14,8 @@ class DatabaseSeeder extends Seeder
     	$this->call('PermissionsTableSeeder');
         $this->call('ScopesTableSeeder');
         $this->call('PermissionScopeTableSeeder');
+
+        // un-comment this to generate three API keys
+        $this->call('KeysTableSeeder');
     }
 }
