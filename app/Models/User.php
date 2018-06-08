@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-	protected $table = "citations_ws.users";
+	protected $table = "users";
 	protected $primaryKey = "user_id";
 	public $incrementing = false;
 
