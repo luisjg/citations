@@ -20,6 +20,50 @@ class ApiKey extends Model
 	}
 
 	/**
+	 * Query scope to limit returned results only to API keys that are actually
+	 * active.
+	 *
+	 * @param Builder $query
+	 * @return Builder
+	 */
+	public function scopeWhereActive($query) {
+		return $query->where('active', '1');
+	}
+
+	/**
+	 * Query scope to limit returned results only to the given API key value.
+	 *
+	 * @param Builder $query
+	 * @param string $key The value of the API key
+	 *
+	 * @return Builder
+	 */
+	public function scopeWhereKey($query, $key) {
+		return $query->where('key', $key);
+	}
+
+	/**
+	 * Returns whether any of the scopes associated with this API key grant the
+	 * given permission name to the key.
+	 *
+	 * @param string $permission Name of the permission to check
+	 * @return bool
+	 */
+	public function hasPermission($permission) {
+		if(!isset($this->scopes)) {
+			$this->load('scopes');
+		}
+
+		foreach($this->scopes as $scope) {
+			if($scope->hasPermission($permission) || $scope->hasAllPermissions()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns whether this key is active for this service.
 	 *
 	 * @return bool

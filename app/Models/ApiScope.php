@@ -21,6 +21,15 @@ class ApiScope extends Model
 	}
 
 	/**
+	 * Returns whether this scope has all possible permissions.
+	 *
+	 * @return bool
+	 */
+	public function hasAllPermissions() {
+		return $this->system_name == 'all';
+	}
+
+	/**
 	 * Returns whether this scope has a specific permission.
 	 *
 	 * @param string $permission The system name of the permission to check
@@ -28,7 +37,7 @@ class ApiScope extends Model
 	 */
 	public function hasPermission($permission) {
 		// if the scope is "all" then we can do anything
-		if($this->system_name == 'all') {
+		if($this->hasAllPermissions()) {
 			return true;
 		}
 
