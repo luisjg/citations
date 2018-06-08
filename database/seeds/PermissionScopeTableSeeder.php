@@ -16,35 +16,35 @@ class PermissionScopeTableSeeder extends Seeder
 
         DB::table($table)->delete();
         DB::table($table)->insert([
-            // "import-scopus" scope includes all Scopus import permissions
+            // "import.scopus" scope includes all Scopus import permissions
         	[
-        		'scope' => 'import-scopus',
+        		'scope' => 'citations.import.scopus',
         		'permission' => 'citations.import.orcid',
         	],
             [
-                'scope' => 'import-scopus',
+                'scope' => 'citations.import.scopus',
                 'permission' => 'citations.import.author',
             ],
 
-            // "manipulate" scope includes all citation manipulation permissions
+            // "citations.manipulate" scope includes all citation manipulation permissions
             [
-                'scope' => 'manipulate',
+                'scope' => 'citations.manipulate',
                 'permission' => 'citations.store',
             ],
             [
-                'scope' => 'manipulate',
+                'scope' => 'citations.manipulate',
                 'permission' => 'citations.update',
             ],
             [
-                'scope' => 'manipulate',
+                'scope' => 'citations.manipulate',
                 'permission' => 'citations.destroy',
             ],
             [
-                'scope' => 'manipulate',
+                'scope' => 'citations.manipulate',
                 'permission' => 'citations.members.store',
             ],
             [
-                'scope' => 'manipulate',
+                'scope' => 'citations.manipulate',
                 'permission' => 'citations.members.destroy',
             ],
         ]);

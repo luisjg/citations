@@ -15,7 +15,7 @@ class KeysTableSeeder extends Seeder
         // THIS SEEDER SHOULD ONLY BE RUN DURING DEVELOPMENT AND TO GENERATE
         // AN INITIAL SET OF API KEYS; THIS SEEDER DESTROYS DATA BEFORE IT
         // RE-CREATES IT
-        
+
         $table = (new ApiKey())->getTable();
         $scopePivotTable = 'key_scope';
         DB::table($table)->delete();
@@ -31,12 +31,12 @@ class KeysTableSeeder extends Seeder
         $importKey = ApiKey::create([
             'key' => sha1(bin2hex(random_bytes(5))),
         ]);
-        $importKey->scopes()->attach('import-scopus');
+        $importKey->scopes()->attach('citations.import.scopus');
 
         // key with "manipulate" scope
         $manipulateKey = ApiKey::create([
             'key' => sha1(bin2hex(random_bytes(5))),
         ]);
-        $manipulateKey->scopes()->attach('manipulate');
+        $manipulateKey->scopes()->attach('citations.manipulate');
     }
 }

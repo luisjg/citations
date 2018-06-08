@@ -21,11 +21,11 @@ class ScopesTableSeeder extends Seeder
         		'display_name' => 'Combination of all available scopes',
         	],
         	[
-        		'system_name' => 'import-scopus',
+        		'system_name' => 'citations.import.scopus',
         		'display_name' => 'Import citation data from Scopus',
         	],
         	[
-        		'system_name' => 'manipulate',
+        		'system_name' => 'citations.manipulate',
         		'display_name' => 'Create, modify, and delete citations',
         	],
         ]);
