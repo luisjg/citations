@@ -26,7 +26,7 @@ class ApiKey extends Model
 	 * @param Builder $query
 	 * @return Builder
 	 */
-	public function scopeWhereActive($query) {
+	public function scopeWhereIsActive($query) {
 		return $query->where('active', '1');
 	}
 
@@ -38,7 +38,7 @@ class ApiKey extends Model
 	 *
 	 * @return Builder
 	 */
-	public function scopeWhereKey($query, $key) {
+	public function scopeWhereKeyValue($query, $key) {
 		return $query->where('key', $key);
 	}
 

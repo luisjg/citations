@@ -45,8 +45,8 @@ class ApiScope extends Model
 			$this->load('permissions');
 		}
 
-		foreach($this->permissions as $permission) {
-			if($permission->system_name == $permission) {
+		foreach($this->permissions as $permissionObj) {
+			if($permissionObj->system_name == $permission) {
 				return true;
 			}
 		}

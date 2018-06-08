@@ -42,16 +42,18 @@ class APIAuthorization
             if(!empty($keyValue)) {
                 // load up the key and ensure it exists
                 $key = ApiKey::with('scopes.permissions')
-                    ->whereKey($keyValue)
-                    ->whereActive()
+                    ->whereKeyValue($keyValue)
+                    ->whereIsActive()
                     ->first();
 
                 // if we have a valid key, then check the scopes/permissions;
                 // otherwise, render a JSON error response
                 if(!empty($key)) {
-                    // if we have a scope with the proper permission, we are
-                    // good; otherwise, throw an exception
-                    if($key->hasPermission($routeName)) {
+                    // if we have a scope with the proper permission or we are
+                    // attempting to access a public route we're good; otherwise,
+                    // throw an exception
+                    if($key->hasPermission($routeName) ||
+                        $this->isPublicRoute($routeName)) {
                         return $next($request);
                     }
 
@@ -66,7 +68,7 @@ class APIAuthorization
             {
                 // if the route name ends with .index or .show then we can still
                 // proceed without an API key; otherwise we NEED an API key
-                if(ends_with($routeName, '.index') || ends_with($routeName, '.show')) {
+                if($this->isPublicRoute($routeName)) {
                     return $next($request);
                 }
 
@@ -77,5 +79,17 @@ class APIAuthorization
 
         // the request is NOT authorized to proceed (unnamed route)
         throw new MissingRouteNameException();
+    }
+
+    /**
+     * Returns whether the given route name can be considered a public-facing
+     * route (i.e. no API key authorization checks necessary).
+     *
+     * @param string $routeName The name of the route to check
+     * @return bool
+     */
+    protected function isPublicRoute($routeName) {
+        return ends_with($routeName, '.index') ||
+            ends_with($routeName, '.show');
     }
 }
