@@ -39,7 +39,7 @@
           "first_name": "Adele",
           "middle_name": null,
           "last_name": "Gottfried",
-          "profile": "https://academics.csun.edu/faculty/adele.gottfried",
+          "profile": "https://www.metalab.csun.edu/faculty/profiles/adele.gottfried",
           "precedence": "0",
           "role": "author"
         }
