@@ -13,10 +13,11 @@
 
 $router->get('/', function () {
     $email = 'adele.gottfried@csun.edu';
+    $orcid = '0000-0003-4920-0452';
     if (env('APP_ENV') !== 'production') {
         $email = 'nr_'.$email;
     }
-    return view('home', compact('email'));
+    return view('home', compact('email', 'orcid'));
 });
 
 $router->get('/about/version-history', function () {

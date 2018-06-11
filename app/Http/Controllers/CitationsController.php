@@ -98,11 +98,18 @@ class CitationsController extends Controller
                 str_singular($type));
         }
 
-        // if we have a provided email address, filter by that specific
+        // if we have a provided email address or ORCID, filter by that specific
         // individual
-        if($request->has('email')) {
-            $email = $request->input('email');
-            $user = User::whereEmail($email)->first(); // intentionally not findOrFail()
+        if($request->has('email') || $request->has('orcid')) {
+            if($request->has('email')) {
+                $email = $request->input('email');
+                $user = User::whereEmail($email)->first(); // intentionally not findOrFail()
+            }
+            else if($request->has('orcid')) {
+                $orcid = $request->input('orcid');
+                $user = User::whereOrcid($orcid)->first(); // intentionally not findOrFail()
+            }
+
             $query = $query->whereHas('members', function($q) use ($user) {
                 if(!empty($user)) {
                     $q->where('user_id', $user->user_id);

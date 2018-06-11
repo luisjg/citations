@@ -24,7 +24,6 @@
   "count": "1",
   "article": {
     "citation_id": "citations:1",
-    "entities_id": null,
     "collaborators": null,
     "citation_text": "Gottfried, Adele. E., et al. (2011). Motivational roots of leadership: A longitudinal study from childhood through adulthood. The Leadership Quarterly, 22, 510-519. In special issue of The Leadership Quarterly on &ldquo;Longitudinal Investigations of Leader Development.&rdquo;",
     "note": null,
@@ -114,6 +113,7 @@
 <strong>Specified person's Citations</strong>
 <ul>
   <li><a href="{!! url('1.0/citations?email='.$email) !!}">{!! url('1.0/citations?email='.$email) !!}</a></li>
+  <li><a href="{!! url('1.0/citations?orcid='.$orcid) !!}">{!! url('1.0/citations?orcid='.$orcid) !!}</a></li>
 </ul>
 <strong>Specific Citation Type by user</strong>
 <ul>
