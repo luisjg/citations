@@ -18,7 +18,7 @@
 <div class="section section--sm">
   <div class="container type--center">
     <h1 class="giga type--thin">{{ env('APP_NAME') }} Web Service</h1>
-    <h3 class="h1 type--thin type--gray">Delivering Individual's Published Works</h3>
+    <h3 class="h1 type--thin type--gray">Delivering Citations of Published Works</h3>
   </div>
 </div>
 <div class="main main--metalab" style="min-height: calc(100vh - 130px);">
