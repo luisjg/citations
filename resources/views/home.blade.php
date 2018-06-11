@@ -123,4 +123,117 @@
   <li><a href="{!! url('1.0/citations/presentations?email='.$email) !!}">{!! url('1.0/citations/presentations?email='.$email) !!}</a></li>
   <li><a href="{!! url('1.0/citations/theses?email='.$email) !!}">{!! url('1.0/citations/theses?email='.$email) !!}</a></li>
 </ul>
+
+<h2 class="type--header type--thin" id="examples">Usage Example</h2>
+  <dl class="accordion">
+    <dt class="accordion__header"> JavaScript <i class="fa fa-chevron-down fa-pull-right type--red" aria-hidden="true"></i></dt>
+    <dd class="accordion__content">
+        <pre>
+        <code class="prettyprint lang-javascript">
+
+
+// this example assumes jQuery integration for ease of use
+// and a &lt;div&gt; element with the ID of "citation-results"
+
+// query all article citations
+var url = '{!! url('1.0/citations/articles') !!}';
+$(document).ready(function() {
+
+  // perform a shorthand AJAX call to grab the information
+  $.get(url, function(data) {
+
+    // iterate over the returned citations
+    var citations = data.articles;
+    $(citations).each(function(index, article) {
+
+      // append each citation to the content of the element
+      $('#citation-results').append('&lt;p&gt;' + article.metadata.title + ' - ' + article.metadata.journal + '&lt;/p&gt;');
+
+    });
+    
+  });
+
+});
+      </code>
+      </pre>
+    </dd>
+    <dt class="accordion__header"> PHP <i class="fa fa-chevron-down fa-pull-right type--red" aria-hidden="true"></i></dt>
+    <dd class="accordion__content">
+      <pre>
+      <code class="prettyprint lang-php">
+// query all article citations
+$url = '{!! url('1.0/citations/articles') !!}';
+
+// call url, you can also use CURL or guzzle -> https://github.com/guzzle/guzzle
+$data = file_get_contents($url);
+
+// decode into an array
+$data = json_decode($data, true);
+
+// setup a blank array
+$citation_list = [];
+
+// loop through results
+foreach($data['articles'] as $article){
+  $citation_list[] = $article['metadata']['title'].' - '.$article['metadata']['journal'];
+}
+
+print_r($citation_list);
+      </code>
+      </pre>
+    </dd>
+    <dt class="accordion__header"> Python <i class="fa fa-chevron-down fa-pull-right type--red" aria-hidden="true"></i></dt>
+    <dd class="accordion__content">
+        <pre>
+        <code class="prettyprint lang-python">
+#python
+import urllib2
+import json
+
+#query all article citations
+url = u'{!! url('1.0/citations/articles') !!}'
+
+#try to read the data 
+try:
+   u = urllib2.urlopen(url)
+   data = u.read()
+except Exception as e:
+  data = {}
+
+#decode into an array
+data = json.loads(data)
+
+#setup a blank array
+citation_list = []
+
+#loop through results
+for article in data['articles']:
+  citation_list.append(article['metadata']['title'] + ' ' + article['metadata']['journal'])
+
+print citation_list
+      </code>
+      </pre>
+    </dd>
+    <dt class="accordion__header"> Ruby <i class="fa fa-chevron-down fa-pull-right type--red" aria-hidden="true"></i></dt>
+    <dd class="accordion__content">
+        <pre>
+        <code class="prettyprint lang-ruby">
+require 'net/http'
+require 'json'
+
+#query all article citations
+source = '{!! url('1.0/citations/articles') !!}'
+
+#call data
+response = Net::HTTP.get_response(URI.parse(source))
+
+#get body of the response
+data = response.body
+
+#put the parsed data
+puts JSON.parse(data)
+      </code>
+        </pre>
+    </dd>
+  </dl>
 @endsection
