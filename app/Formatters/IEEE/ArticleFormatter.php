@@ -5,6 +5,12 @@ namespace App\Formatters\IEEE;
 use App\Citation;
 use App\Formatters\IEEE\IEEEFormatter;
 
+/**
+ * This class formats article-specific citation instances.
+ *
+ * @see http://www.citethisforme.com/guides/ieee/how-to-cite-a-journal
+ * @see http://libguides.murdoch.edu.au/IEEE/journal
+ */
 class ArticleFormatter extends IEEEFormatter
 {
 	/**

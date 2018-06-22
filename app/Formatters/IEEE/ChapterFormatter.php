@@ -5,6 +5,12 @@ namespace App\Formatters\IEEE;
 use App\Citation;
 use App\Formatters\IEEE\IEEEFormatter;
 
+/**
+ * This class formats chapter-specific citation instances.
+ *
+ * @see http://www.citethisforme.com/guides/ieee/how-to-cite-a-chapter-of-an-edited-book
+ * @see http://libguides.murdoch.edu.au/IEEE/chapter
+ */
 class ChapterFormatter extends IEEEFormatter
 {
 	/**

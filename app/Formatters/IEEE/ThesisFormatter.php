@@ -5,6 +5,11 @@ namespace App\Formatters\IEEE;
 use App\Citation;
 use App\Formatters\IEEE\IEEEFormatter;
 
+/**
+ * This class formats thesis-specific citation instances.
+ *
+ * @see http://www.citethisforme.com/guides/ieee/how-to-cite-a-dissertation
+ */
 class ThesisFormatter extends IEEEFormatter
 {
 	/**
