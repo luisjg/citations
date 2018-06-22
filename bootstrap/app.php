@@ -72,6 +72,10 @@ $app->middleware([
    App\Http\Middleware\APIVersioning::class,
 ]);
 
+$app->routeMiddleware([
+    'api_auth' => App\Http\Middleware\APIAuthorization::class,
+]);
+
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -113,7 +117,8 @@ $app->router->group([
 // v1.0
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
-    'prefix' => '1.0'
+    'prefix' => '1.0',
+    'middleware' => 'api_auth',
 ], function ($router) {
     require __DIR__.'/../routes/1.0.php';
 });
@@ -121,7 +126,8 @@ $app->router->group([
 // v1.1
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
-    'prefix' => '1.1'
+    'prefix' => '1.1',
+    'middleware' => 'api_auth',
 ], function ($router) {
     require __DIR__.'/../routes/1.1.php';
 });

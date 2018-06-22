@@ -10,9 +10,13 @@ use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+use App\Exceptions\InvalidApiKeyException;
 use App\Exceptions\InvalidPayloadTypeException;
 use App\Exceptions\InvalidRequestException;
+use App\Exceptions\MissingApiKeyException;
+use App\Exceptions\MissingRouteNameException;
 use App\Exceptions\NoDataException;
+use App\Exceptions\PermissionDeniedException;
 
 class Handler extends ExceptionHandler
 {
@@ -86,6 +90,34 @@ class Handler extends ExceptionHandler
                 $e->getMessage(),
                 404
             ), 404);
+        }
+        else if($e instanceof InvalidApiKeyException) {
+            return response(generateErrorResponse(
+                $request,
+                'You must supply a valid active API key for that action',
+                400
+            ), 400);
+        }
+        else if($e instanceof MissingApiKeyException) {
+            return response(generateErrorResponse(
+                $request,
+                'The X-API-Key header was missing from your request',
+                400
+            ), 400);
+        }
+        else if($e instanceof MissingRouteNameException) {
+            return response(generateErrorResponse(
+                $request,
+                'Unable to resolve the permission associated with that action',
+                500
+            ), 500);
+        }
+        else if($e instanceof PermissionDeniedException) {
+            return response(generateErrorResponse(
+                $request,
+                'You are not authorized to perform that action',
+                403
+            ), 403);
         }
 
         return parent::render($request, $e);
