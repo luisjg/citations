@@ -39,7 +39,7 @@ class IEEEFormatter extends AbstractFormatter
 	 */
 	protected function generateCollaboratorArray() : array {
 		// authorship of articles becomes interesting when taking Scopus data
-		// into account since our information is complete based upon our
+		// into account since our information isn't complete based upon our
 		// abilities within its API
 		$isScopus = !empty($this->citation->scopus_id);
 		$authorArr = [];
