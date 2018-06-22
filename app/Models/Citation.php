@@ -18,7 +18,17 @@ class Citation extends Model
 		'note'
 	];
 
-	protected $hidden = ['id', 'citation_type', 'entities_id', 'scopus_id', 'created_at', 'updated_at'];
+	protected $hidden = [
+		'id',
+		'citation_text',
+		'collaborators',
+		'citation_type',
+		'entities_id',
+		'scopus_id',
+		'created_at',
+		'updated_at'
+	];
+	
 	protected $appends = ['type'];
 
 	public function metadata() {

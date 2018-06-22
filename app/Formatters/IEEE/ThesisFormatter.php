@@ -19,7 +19,7 @@ class ThesisFormatter extends IEEEFormatter
 	/**
 	 * Documentation in parent class.
 	 *
-	 * @see App\Formatters\IEEEFormatter
+	 * @see App\Formatters\IEEE\IEEEFormatter
 	 */
 	public function format() : string {
 		$author = $this->citation->members->filter(function($member) {
@@ -38,7 +38,7 @@ class ThesisFormatter extends IEEEFormatter
 
 		// resolve the relevant strings for the formatted citation
 		$title = $this->citation->metadata->title;
-		$date = $this->citation->publishedMetadata->date;
+		$date = $this->getFormattedDate();
 		$authorName = "{$author->first_name[0]}. {$author->last_name}";
 		$chairName = "{$chair->last_name}, {$chair->first_name}";
 

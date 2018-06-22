@@ -5,6 +5,8 @@ namespace App\Formatters\IEEE;
 use App\Citation;
 use App\Formatters\AbstractFormatter;
 
+use Carbon\Carbon;
+
 class IEEEFormatter extends AbstractFormatter
 {
 	/**
@@ -35,7 +37,7 @@ class IEEEFormatter extends AbstractFormatter
 	 *
 	 * @return array
 	 */
-	protected function generateCollaboratorArray() {
+	protected function generateCollaboratorArray() : array {
 		// authorship of articles becomes interesting when taking Scopus data
 		// into account since our information is complete based upon our
 		// abilities within its API
@@ -66,11 +68,53 @@ class IEEEFormatter extends AbstractFormatter
 	 *
 	 * @return string
 	 */
-	protected function generateCollaboratorString() {
+	protected function generateCollaboratorString() : string {
 		$collaboratorArr = $this->generateCollaboratorArray();
 
-		$collaborators = "";
+		// the "and" as well as the position of the final comma is going to
+		// be defined based upon how many collaborators exist
+		//
+		// ex: A. Win
+		// ex: A. Win and B. Twin
+		// ex. A. Win, B. Twin, and C. Fin
+		if(count($collaboratorArr) > 1) {
+			$lastCollaborator = array_pop($collaboratorArr);
+			$collaborators = implode(", ", $collaboratorArr);
+
+			// if we still have more than one collaborator left, ensure that
+			// the string ends with a comma before the "and" token
+			if(count($collaboratorArr) > 1) {
+				$collaborators .= ', ';
+			}
+
+			$collaborators .= " and {$lastCollaborator}";
+		}
+		else
+		{
+			$collaborators = array_shift($collaboratorArr);
+		}
+
 		return $collaborators;
+	}
+
+	/**
+	 * Returns the formatted date that appears at the end of the citation string.
+	 * This will result in either a single year or something like "Dec. 2017".
+	 *
+	 * @return string
+	 */
+	protected function getFormattedDate() : string {
+		// the date is typically represented as either a single year of with the
+		// YYYY-MM-DD format, so we can split and check
+		$parts = explode('-', $this->citation->publishedMetadata->date);
+		if(count($parts) == 1) {
+			// single year, so just return that
+			return $parts[0];
+		}
+
+		// multiple parts, so let's run it through Carbon
+		$date = Carbon::createFromFormat('Y-m-d', implode('-', $parts));
+		return $date->format('M. Y');
 	}
 
 	/**
