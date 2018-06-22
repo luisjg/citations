@@ -31,13 +31,9 @@ class ThesisFormatter extends IEEEFormatter
 			return $member->pivot->role_position == 'author';
 		})->first();
 
-		$chair = $this->citation->members->filter(function($member) {
-			return $member->pivot->role_position == 'chair';
-		})->first();
-
-		// if we do not have any author/chair information, just skip the formatting
+		// if we do not have any author information, just skip the formatting
 		// in order to prevent a null issue
-		if(empty($author) || empty($chair)) {
+		if(empty($author)) {
 			return "";
 		}
 
@@ -45,7 +41,6 @@ class ThesisFormatter extends IEEEFormatter
 		$title = $this->citation->metadata->title;
 		$date = $this->getFormattedDate();
 		$authorName = "{$author->first_name[0]}. {$author->last_name}";
-		$chairName = "{$chair->last_name}, {$chair->first_name}";
 
 		$formatted = "{$authorName}, \"{$title}\", {$date}.";
 		return $formatted;
