@@ -101,9 +101,10 @@ class IEEEFormatter extends AbstractFormatter
 	 * Returns the formatted date that appears at the end of the citation string.
 	 * This will result in either a single year or something like "Dec. 2017".
 	 *
+	 * @param bool $yearOnly Whether to return only the year regardless of format
 	 * @return string
 	 */
-	protected function getFormattedDate() : string {
+	protected function getFormattedDate($yearOnly=false) : string {
 		// the date is typically represented as either a single year of with the
 		// YYYY-MM-DD format, so we can split and check
 		$parts = explode('-', $this->citation->publishedMetadata->date);
@@ -114,6 +115,9 @@ class IEEEFormatter extends AbstractFormatter
 
 		// multiple parts, so let's run it through Carbon
 		$date = Carbon::createFromFormat('Y-m-d', implode('-', $parts));
+		if($yearOnly) {
+			return $date->format('Y');
+		}
 		return $date->format('M. Y');
 	}
 

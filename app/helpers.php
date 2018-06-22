@@ -89,6 +89,23 @@ function generateCollectionResponse($request, $collectionType, $data, $code=200,
  * @return Citation
  */
 function fixCitationAttributes(&$citation, $format="ieee") {
+	// format the citation based upon its type and add a "formatted" key to
+	// the resultant JSON object if a formatter can be resolved
+	$formatters = [
+		'ieee' => 'App\Formatters\IEEE\IEEEFormatter',
+	];
+	$citation['formatted'] = "";
+	if(array_key_exists($format, $formatters)) {
+		$class = $formatters[$format];
+		$citation['formatted'] = (new $class($citation))->format();
+	}
+
+	// NOTE: Addition of the "formatted" attribute needs to be done prior to
+	// the removal and setting of additional attributes below; it was reloading
+	// the unset relationships since it needed to load them when performing
+	// the formatting steps. That resulted in unnecessary database calls and
+	// a slow-down of the web service.
+
 	// update the precedence and faculty URLs if available
 	foreach($citation['members'] as &$member) {
 		$member['profile'] = (!empty($member['facultyUrl'])
@@ -113,17 +130,6 @@ function fixCitationAttributes(&$citation, $format="ieee") {
 
 	// turn the wasPublished boolean attribute into a string
 	$citation['is_published'] = ($citation['wasPublished'] ? "true" : "false");
-
-	// format the citation based upon its type and add a "formatted" key to
-	// the resultant JSON object if a formatter can be resolved
-	$formatters = [
-		'ieee' => 'App\Formatters\IEEE\IEEEFormatter',
-	];
-	$citation['formatted'] = "";
-	if(array_key_exists($format, $formatters)) {
-		$class = $formatters[$format];
-		$citation['formatted'] = (new $class($citation))->format();
-	}
 
 	return $citation;
 }
