@@ -3,9 +3,9 @@
 namespace App\Formatters\IEEE;
 
 use App\Citation;
-use App\Formatters\AbstractFormatter;
+use App\Formatters\IEEE\IEEEFormatter;
 
-class ThesisFormatter extends AbstractFormatter
+class ThesisFormatter extends IEEEFormatter
 {
 	/**
 	 * Constructs a new instance of ThesisFormatter.
@@ -18,6 +18,8 @@ class ThesisFormatter extends AbstractFormatter
 
 	/**
 	 * Documentation in parent class.
+	 *
+	 * @see App\Formatters\IEEEFormatter
 	 */
 	public function format() : string {
 		$author = $this->citation->members->filter(function($member) {
