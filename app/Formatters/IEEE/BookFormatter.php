@@ -8,7 +8,7 @@ use App\Formatters\IEEE\IEEEFormatter;
 /**
  * This class formats book-specific citation instances.
  *
- * @see http://www.citethisforme.com/guides/ieee/how-to-cite-a-chapter-of-an-edited-book
+ * @see http://www.citethisforme.com/guides/ieee/how-to-cite-a-book
  * @see http://libguides.murdoch.edu.au/IEEE/book
  */
 class BookFormatter extends IEEEFormatter
