@@ -1,5 +1,7 @@
 <?php
 
+use App\Formatters\IEEE\IEEEFormatter;
+
 /**
  * Generates a response array based upon a given static message as well as an
  * optional response code and optional success value.
@@ -82,9 +84,11 @@ function generateCollectionResponse($request, $collectionType, $data, $code=200,
  * are moving data around and removing unnecessary data from the citation.
  *
  * @param $citation Citation a single Citation instance
+ * @param string $format Optional formatting style for the citation
+ *
  * @return Citation
  */
-function fixCitationAttributes(&$citation) {
+function fixCitationAttributes(&$citation, $format="ieee") {
 	// update the precedence and faculty URLs if available
 	foreach($citation['members'] as &$member) {
 		$member['profile'] = (!empty($member['facultyUrl'])
@@ -109,6 +113,17 @@ function fixCitationAttributes(&$citation) {
 
 	// turn the wasPublished boolean attribute into a string
 	$citation['is_published'] = ($citation['wasPublished'] ? "true" : "false");
+
+	// format the citation based upon its type and add a "formatted" key to
+	// the resultant JSON object if a formatter can be resolved
+	$formatters = [
+		'ieee' => 'App\Formatters\IEEE\IEEEFormatter',
+	];
+	$citation['formatted'] = "";
+	if(array_key_exists($format, $formatters)) {
+		$class = $formatters[$format];
+		$citation['formatted'] = (new $class($citation))->format();
+	}
 
 	return $citation;
 }

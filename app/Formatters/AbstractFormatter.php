@@ -2,14 +2,14 @@
 
 namespace App\Formatters;
 
-use App\Models\Citation;
+use App\Citation;
 
 abstract class AbstractFormatter
 {
 	/**
 	 * Instance of a citation that will be formatted.
 	 *
-	 * @var App\Models\Citation
+	 * @var App\Citation
 	 */
 	protected $citation;
 
@@ -28,5 +28,5 @@ abstract class AbstractFormatter
 	 *
 	 * @return string
 	 */
-	public function format() : string;
+	public abstract function format() : string;
 }

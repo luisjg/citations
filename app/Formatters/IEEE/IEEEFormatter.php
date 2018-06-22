@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Formatters\Generic;
+namespace App\Formatters\IEEE;
 
-use App\Models\Citation;
+use App\Citation;
 use App\Formatters\AbstractFormatter;
-use App\Formatters\Generic\ThesisFormatter;
 
-class GenericFormatter extends AbstractFormatter
+class IEEEFormatter extends AbstractFormatter
 {
 	/**
 	 * Array describing the set of citation types and their matching formatters
@@ -14,14 +13,14 @@ class GenericFormatter extends AbstractFormatter
 	 *
 	 * @var array
 	 */
-	protected $formatters = [
-		'thesis' => 'App\Formatters\Generic\ThesisFormatter',
+	const FORMATTERS = [
+		'thesis' => 'App\Formatters\IEEE\ThesisFormatter',
 	];
 
 	/**
 	 * Constructs a new instance of GenericFormatter.
 	 *
-	 * @param App\Models\Citation $citation Citation instance
+	 * @param App\Citation $citation Citation instance
 	 */
 	public function __construct(Citation $citation) {
 		parent::__construct($citation);
@@ -32,9 +31,9 @@ class GenericFormatter extends AbstractFormatter
 	 */
 	public function format() : string {
 		$key = $this->citation->citation_type;
-		if(array_key_exists($key, $this->formatters)) {
-			$class = $this->formatters[$key];
-			return new $class($this->citation)->format();
+		if(array_key_exists($key, self::FORMATTERS)) {
+			$class = self::FORMATTERS[$key];
+			return (new $class($this->citation))->format();
 		}
 
 		return "";
