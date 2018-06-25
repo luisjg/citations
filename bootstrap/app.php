@@ -97,6 +97,10 @@ $app->register(CSUNMetaLab\LumenProxyPass\Providers\ProxyPassServiceProvider::cl
 $app->configure('forcehttps');
 $app->register(CSUNMetaLab\LumenForceHttps\Providers\ForceHttpsServiceProvider::class);
 
+$app->configure('guzzle');
+
+$app->configure('scopus');
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
