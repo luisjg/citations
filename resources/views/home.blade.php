@@ -24,7 +24,6 @@
   "count": "1",
   "article": {
     "citation_id": "citations:1",
-    "collaborators": null,
     "formatted": "A. Gottfried, "Motivational roots of leadership: A longitudinal study from childhood through adulthood", <em>The Leadership Quarterly</em>, 2011.",
     "note": null,
     "membership": {
