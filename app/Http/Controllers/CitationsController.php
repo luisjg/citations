@@ -216,8 +216,9 @@ class CitationsController extends Controller
      */
     public function collegeIndex(Request $request, $college_id, $type="citations") {
         // get the base query and apply any relevant filters from the query
-        // string
+        // string (prevent theses from coming through)
         $citations = $this->getBaseCollegeCitationQuery($college_id);
+        $citations = $citations->whereNotIn('citation_type', ['thesis']);
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
         // generate the response and send everything back
@@ -234,8 +235,9 @@ class CitationsController extends Controller
      */
     public function departmentIndex(Request $request, $dept_id, $type="citations") {
         // get the base query and apply any relevant filters from the query
-        // string
+        // string (prevent theses from coming through)
         $citations = $this->getBaseDepartmentCitationQuery($dept_id);
+        $citations = $citations->whereNotIn('citation_type', ['thesis']);
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
         // generate the response and send everything back
