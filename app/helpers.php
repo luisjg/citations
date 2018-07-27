@@ -124,6 +124,13 @@ function fixCitationAttributes(&$citation, $format="ieee") {
 	];
 	unset($citation['members']);
 
+	// remove the degree-based information from the citation_metadata attribute
+	// for non-theses
+	if($citation['citation_type'] != 'thesis') {
+		unset($citation['citationMetadata']['degree_type']);
+		unset($citation['citationMetadata']['degree_program']);
+	}
+
 	// transform the published_metadata attribute into "published"
 	$citation['published'] = $citation['publishedMetadata'];
 	unset($citation['publishedMetadata']);
