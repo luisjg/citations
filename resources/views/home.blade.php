@@ -64,7 +64,7 @@
 <h2 id="getting-started" class="type--header type--thin">Getting Started</h2>
 <ol>
   <li><strong>GENERATE THE URI:</strong> Find the usage that fits your need. Browse through collections and subcollections to help you craft your URI.</li>
-  <li><strong>ADD OPTIONAL FILTERS:</strong> Add any optional query filters to limit/manipulate your data. See the Query Filters section.</li>
+  <li><strong>ADD OPTIONAL FILTERS:</strong> Add any optional query filters to limit/manipulate your data. See the Query Filters section. One or more filters can be added to any query.</li>
   <li><strong>PROVIDE THE DATA:</strong> Use the URI to query your data. See the Usage Example section.</li>
   <li><strong>SHOW THE RESULTS</strong></li>
 </ol>
@@ -111,7 +111,16 @@
   <li><a href="{!! url('1.1/departments/189/citations?recent=20') !!}">{!! url('1.1/departments/189/citations?recent=20') !!}</a></li>
   <li><a href="{!! url('1.1/colleges/52/citations?recent=20') !!}">{!! url('1.1/colleges/52/citations?recent=20') !!}</a></li>
 </ul>
-<strong>Specified person's Citations</strong>
+<strong>Citations per Department/College by Date</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?date=2014') !!}">{!! url('1.1/departments/189/citations/theses?date=2014') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?date=2014-06') !!}">{!! url('1.1/departments/189/citations/theses?date=2014-06') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?date=2014-06-05') !!}">{!! url('1.1/departments/189/citations/theses?date=2014-06-05') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?date=2014') !!}">{!! url('1.1/colleges/52/citations/theses?date=2014') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?date=2014-06') !!}">{!! url('1.1/colleges/52/citations/theses?date=2014-06') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?date=2014-06-05') !!}">{!! url('1.1/colleges/52/citations/theses?date=2014-06-05') !!}</a></li>
+</ul>
+<strong>Specified Person's Citations</strong>
 <ul>
   <li><a href="{!! url('1.0/citations?email='.$email) !!}">{!! url('1.0/citations?email='.$email) !!}</a></li>
   <li><a href="{!! url('1.0/citations?orcid='.$orcid) !!}">{!! url('1.0/citations?orcid='.$orcid) !!}</a></li>
@@ -123,6 +132,11 @@
   <li><a href="{!! url('1.0/citations/chapters?email='.$email) !!}">{!! url('1.0/citations/chapters?email='.$email) !!}</a></li>
   <li><a href="{!! url('1.0/citations/presentations?email='.$email) !!}">{!! url('1.0/citations/presentations?email='.$email) !!}</a></li>
   <li><a href="{!! url('1.0/citations/theses?email='.$email) !!}">{!! url('1.0/citations/theses?email='.$email) !!}</a></li>
+</ul>
+<strong>Specific Citation Type by User by Date</strong>
+<ul>
+  <li><a href="{!! url('1.0/citations/articles?email='.$email.'&date=2015') !!}">{!! url('1.0/citations/articles?email='.$email.'&date=2015') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/theses?email='.$email.'&date=2013') !!}">{!! url('1.0/citations/theses?email='.$email.'&date=2013') !!}</a></li>
 </ul>
 
 <h2 class="type--header type--thin" id="examples">Usage Example</h2>
