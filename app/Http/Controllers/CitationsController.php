@@ -15,6 +15,7 @@ use App\Exceptions\NoDataException;
 
 use Carbon\Carbon;
 
+use Closure;
 use DB;
 use Log;
 
@@ -164,6 +165,43 @@ class CitationsController extends Controller
     }
 
     /**
+     * Sorts a collection using the given callback function along with an optional
+     * direction. Returns a new Collection.
+     *
+     * @param Collection $data The Collection to sort
+     * @param Closure $callback The callback function to execute
+     * @param string $direction Optional sorting direction; default is ASC
+     *
+     * @return Collection
+     */
+    protected function sortCollectionByCallback($data, Closure $callback, $direction="ASC") {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // make sure we have a valid sorting direction; otherwise, default to
+        // ascending
+        $directions = ['ASC', 'DESC'];
+        if(!in_array($direction, $directions)) {
+            $direction = "ASC";
+        }
+
+        // depending on the direction we have to invoke a different method on
+        // the collection itself
+        if($direction == 'ASC') {
+            $data = $data->sortBy($callback);
+        }
+        else
+        {
+            $data = $data->sortByDesc($callback);
+        }
+
+        return $data->values();
+    }
+
+    /**
      * Sorts the citations collection by author record using the specified field
      * in the User model for comparison. An optional direction can also be
      * specified. Returns a new Collection.
@@ -181,13 +219,6 @@ class CitationsController extends Controller
             return $data;
         }
 
-        // make sure we have a valid sorting direction; otherwise, default to
-        // ascending
-        $directions = ['ASC', 'DESC'];
-        if(!in_array($direction, $directions)) {
-            $direction = "ASC";
-        }
-
         // our sorting callback will be the same regardless of direction
         $callback = function($citation) use ($field) {
             $author = $citation->members->where('pivot.role_position', 'author')
@@ -198,17 +229,7 @@ class CitationsController extends Controller
             return "";
         };
 
-        // depending on the direction we have to invoke a different method on
-        // the collection itself
-        if($direction == 'ASC') {
-            $data = $data->sortBy($callback);
-        }
-        else
-        {
-            $data = $data->sortByDesc($callback);
-        }
-
-        return $data->values();
+        return $this->sortCollectionByCallback($data, $callback, $direction);
     }
 
     /**
@@ -225,13 +246,6 @@ class CitationsController extends Controller
         // before attempting to do anything to it
         if($data->count() == 0) {
             return $data;
-        }
-
-        // make sure we have a valid sorting direction; otherwise, default to
-        // ascending
-        $directions = ['ASC', 'DESC'];
-        if(!in_array($direction, $directions)) {
-            $direction = "ASC";
         }
 
         // our sorting callback will be the same regardless of direction
@@ -259,17 +273,7 @@ class CitationsController extends Controller
             return Carbon::createFromDate(1970, 1, 1);
         };
 
-        // depending on the direction we have to invoke a different method on
-        // the collection itself
-        if($direction == 'ASC') {
-            $data = $data->sortBy($callback);
-        }
-        else
-        {
-            $data = $data->sortByDesc($callback);
-        }
-
-        return $data->values();
+        return $this->sortCollectionByCallback($data, $callback, $direction);
     }
 
     /**
