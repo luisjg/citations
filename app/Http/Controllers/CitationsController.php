@@ -13,6 +13,8 @@ use App\Exceptions\InvalidPayloadTypeException;
 use App\Exceptions\InvalidRequestException;
 use App\Exceptions\NoDataException;
 
+use Carbon\Carbon;
+
 use DB;
 use Log;
 
@@ -230,6 +232,41 @@ class CitationsController extends Controller
         $directions = ['ASC', 'DESC'];
         if(!in_array($direction, $directions)) {
             $direction = "ASC";
+        }
+
+        // our sorting callback will be the same regardless of direction
+        $callback = function($citation) {
+            if(!empty($citation->publishedMetadata)) {
+                $date = $citation->publishedMetadata->date;
+
+                // depending on how the date is structured, we can generate the
+                // Carbon instance differently:
+                // YYYY-MM-DD (3 parts)
+                // YYYY-MM (2 parts)
+                // YYYY (1 part)
+                $parts = explode('-', $date);
+                if(count($parts) == 3) {
+                    return Carbon::createFromDate($parts[0], $parts[1], $parts[2]);
+                }
+                else if(count($parts) == 2) {
+                    return Carbon::createFromDate($parts[0], $parts[1], 1);
+                }
+                else if(count($parts) == 1) {
+                    return Carbon::createFromDate($parts[0], 1, 1);
+                }
+            }
+            // invalid date, so use UNIX epoch
+            return Carbon::createFromDate(1970, 1, 1);
+        };
+
+        // depending on the direction we have to invoke a different method on
+        // the collection itself
+        if($direction == 'ASC') {
+            $data = $data->sortBy($callback);
+        }
+        else
+        {
+            $data = $data->sortByDesc($callback);
         }
 
         return $data->values();

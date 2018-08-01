@@ -120,6 +120,20 @@
   <li><a href="{!! url('1.1/colleges/52/citations/theses?date=2014-06') !!}">{!! url('1.1/colleges/52/citations/theses?date=2014-06') !!}</a></li>
   <li><a href="{!! url('1.1/colleges/52/citations/theses?date=2014-06-05') !!}">{!! url('1.1/colleges/52/citations/theses?date=2014-06-05') !!}</a></li>
 </ul>
+<strong>Sorted Citations per Department/College by Author Last Name</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?sortBy=author_lastname&sortDir=ASC') !!}">{!! url('1.1/departments/189/citations/theses?sortBy=author_lastname&sortDir=ASC') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?sortBy=author_lastname&sortDir=DESC') !!}">{!! url('1.1/departments/189/citations/theses?sortBy=author_lastname&sortDir=DESC') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?sortBy=author_lastname&sortDir=ASC') !!}">{!! url('1.1/colleges/52/citations/theses?sortBy=author_lastname&sortDir=ASC') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?sortBy=author_lastname&sortDir=DESC') !!}">{!! url('1.1/colleges/52/citations/theses?sortBy=author_lastname&sortDir=DESC') !!}</a></li>
+</ul>
+<strong>Sorted Citations per Department/College by Date</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?sortBy=date&sortDir=ASC') !!}">{!! url('1.1/departments/189/citations/theses?sortBy=date&sortDir=ASC') !!}</a></li>
+  <li><a href="{!! url('1.1/departments/189/citations/theses?sortBy=date&sortDir=DESC') !!}">{!! url('1.1/departments/189/citations/theses?sortBy=date&sortDir=DESC') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?sortBy=date&sortDir=ASC') !!}">{!! url('1.1/colleges/52/citations/theses?sortBy=date&sortDir=ASC') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations/theses?sortBy=date&sortDir=DESC') !!}">{!! url('1.1/colleges/52/citations/theses?sortBy=date&sortDir=DESC') !!}</a></li>
+</ul>
 <strong>Specified Person's Citations</strong>
 <ul>
   <li><a href="{!! url('1.0/citations?email='.$email) !!}">{!! url('1.0/citations?email='.$email) !!}</a></li>
@@ -137,6 +151,11 @@
 <ul>
   <li><a href="{!! url('1.0/citations/articles?email='.$email.'&date=2015') !!}">{!! url('1.0/citations/articles?email='.$email.'&date=2015') !!}</a></li>
   <li><a href="{!! url('1.0/citations/theses?email='.$email.'&date=2013') !!}">{!! url('1.0/citations/theses?email='.$email.'&date=2013') !!}</a></li>
+</ul>
+<strong>Specific Citation Type by User, Sorted by Date</strong>
+<ul>
+  <li><a href="{!! url('1.0/citations/theses?email='.$email.'&sortBy=date&sortDir=ASC') !!}">{!! url('1.0/citations/theses?email='.$email.'&sortBy=date&sortDir=ASC') !!}</a></li>
+  <li><a href="{!! url('1.0/citations/theses?email='.$email.'&sortBy=date&sortDir=DESC') !!}">{!! url('1.0/citations/theses?email='.$email.'&sortBy=date&sortDir=DESC') !!}</a></li>
 </ul>
 
 <h2 class="type--header type--thin" id="examples">Usage Example</h2>
