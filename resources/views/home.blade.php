@@ -63,8 +63,9 @@
 <br>
 <h2 id="getting-started" class="type--header type--thin">Getting Started</h2>
 <ol>
-  <li><strong>GENERATE THE URI:</strong> Find the usage that fits your need. Browse through subcollections, instances and query types to help you craft your URI.</li>
-  <li><strong>PROVIDE THE DATA:</strong> Use the URI to query your data. See the Usage Example session.</li>
+  <li><strong>GENERATE THE URI:</strong> Find the usage that fits your need. Browse through collections and subcollections to help you craft your URI.</li>
+  <li><strong>ADD OPTIONAL FILTERS:</strong> Add any optional query filters to limit/manipulate your data. See the Query Filters section.</li>
+  <li><strong>PROVIDE THE DATA:</strong> Use the URI to query your data. See the Usage Example section.</li>
   <li><strong>SHOW THE RESULTS</strong></li>
 </ol>
 <p>Loop through the data to display its information. See the Usage Example session.</p>
@@ -88,11 +89,6 @@
   <li><a href="{!! url('1.1/departments/189/citations') !!}">{!! url('1.1/departments/189/citations') !!}</a></li>
   <li><a href="{!! url('1.1/colleges/52/citations') !!}">{!! url('1.1/colleges/52/citations') !!}</a></li>
 </ul>
-<strong>Recent Number of Citations per Department/College</strong>
-<ul>
-  <li><a href="{!! url('1.1/departments/189/citations?recent=20') !!}">{!! url('1.1/departments/189/citations?recent=20') !!}</a></li>
-  <li><a href="{!! url('1.1/colleges/52/citations?recent=20') !!}">{!! url('1.1/colleges/52/citations?recent=20') !!}</a></li>
-</ul>
 <strong>Specific Citation Type per Department</strong>
 <ul>
   <li><a href="{!! url('1.1/departments/189/citations/articles') !!}">{!! url('1.1/departments/189/citations/articles') !!}</a></li>
@@ -108,6 +104,12 @@
   <li><a href="{!! url('1.1/colleges/52/citations/chapters') !!}">{!! url('1.1/colleges/52/citations/chapters') !!}</a></li>
   <li><a href="{!! url('1.1/colleges/52/citations/presentations') !!}">{!! url('1.1/colleges/52/citations/presentations') !!}</a></li>
   <li><a href="{!! url('1.1/colleges/52/citations/theses') !!}">{!! url('1.1/colleges/52/citations/theses') !!}</a></li>
+</ul>
+<h2 id="query-filters" class="type--header type--thin">Query Filters</h2>
+<strong>Recent Number of Citations per Department/College</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations?recent=20') !!}">{!! url('1.1/departments/189/citations?recent=20') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations?recent=20') !!}">{!! url('1.1/colleges/52/citations?recent=20') !!}</a></li>
 </ul>
 <strong>Specified person's Citations</strong>
 <ul>

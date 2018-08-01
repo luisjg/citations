@@ -4,6 +4,7 @@
   <li class="nav__item"><a class="nav__link" href="{{ url('/#getting-started') }}">Getting Started</a></li>
   <li class="nav__item"><a class="nav__link" href="{{ url('/#collections') }}">Collections</a></li>
   <li class="nav__item"><a class="nav__link" href="{{ url('/#subcollections') }}">Subcollections</a></li>
+  <li class="nav__item"><a class="nav__link" href="{{ url('/#query-filters') }}">Query Filters</a></li>
 </ul>
 <p class="header--sm"><strong>VERSION HISTORY</strong></p>
 <ul class="nav">
