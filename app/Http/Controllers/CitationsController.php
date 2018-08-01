@@ -162,6 +162,132 @@ class CitationsController extends Controller
     }
 
     /**
+     * Sorts the citations collection by author record using the specified field
+     * in the User model for comparison. An optional direction can also be
+     * specified. Returns a new Collection.
+     *
+     * @param Collection $data The data collection
+     * @param string $field The field by which to sort
+     * @param string $direction Optional sort direction; default is ASC
+     *
+     * @return Collection
+     */
+    protected function sortCollectionByAuthor($data, $field, $direction="ASC") {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // make sure we have a valid sorting direction; otherwise, default to
+        // ascending
+        $directions = ['ASC', 'DESC'];
+        if(!in_array($direction, $directions)) {
+            $direction = "ASC";
+        }
+
+        // our sorting callback will be the same regardless of direction
+        $callback = function($citation) use ($field) {
+            $author = $citation->members->where('pivot.role_position', 'author')
+                ->first();
+            if(!empty($author)) {
+                return $author->$field;
+            }
+            return "";
+        };
+
+        // depending on the direction we have to invoke a different method on
+        // the collection itself
+        if($direction == 'ASC') {
+            $data = $data->sortBy($callback);
+        }
+        else
+        {
+            $data = $data->sortByDesc($callback);
+        }
+
+        return $data->values();
+    }
+
+    /**
+     * Sorts the citations collection by published date. An optional direction
+     * can also be specified. Returns a new Collection.
+     *
+     * @param Collection $data The data collection
+     * @param string $direction Optional sort direction; default is ASC
+     *
+     * @return Collection
+     */
+    protected function sortCollectionByDate($data, $direction="ASC") {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // make sure we have a valid sorting direction; otherwise, default to
+        // ascending
+        $directions = ['ASC', 'DESC'];
+        if(!in_array($direction, $directions)) {
+            $direction = "ASC";
+        }
+
+        return $data->values();
+    }
+
+    /**
+     * Applies a set of request filters to the resultant Collection generated
+     * by the citation query methods and returns a new Collection. This method
+     * will typically perform sorting or additional filtering that cannot be
+     * done reliably at the database layer.
+     *
+     * @param Request $request The request to check
+     * @param Collection $data The Collection instance to filter
+     *
+     * @return Collection
+     */
+    protected function applyFiltersToCollection(Request $request, $data) {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // should we sort?
+        if($request->has('sortBy')) {
+            $sortBy = "";
+            $sortDir = "ASC";
+
+            // we can sort either by date or the last name of the author
+            if($request->input('sortBy') == "date") {
+                $sortBy = "date";
+            }
+            else if($request->input('sortBy') == "author_lastname") {
+                $sortBy = "author_lastname";
+            }
+
+            // we can sort either ascending or descending order; default is
+            // ascending order
+            if($request->input('sortDir') == 'DESC') {
+                $sortDir = "DESC";
+            }
+
+            // we should sort only if we have a valid sort option that has been
+            // specified
+            if(!empty($sortBy)) {
+                if($sortBy == "author_lastname") {
+                    $data = $this->sortCollectionByAuthor($data, 'last_name', $sortDir);
+                }
+                else if($sortBy == "date") {
+                    $data = $this->sortCollectionByDate($data, $sortDir);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Returns the common base citation query that will be used for all other
      * controller methods here.
      *
@@ -251,9 +377,11 @@ class CitationsController extends Controller
         }
 
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
+        $data = $citations->get();
+        $data = $this->applyFiltersToCollection($request, $data);
 
         // generate the response and send everything back
-        return generateCollectionResponse($request, $type, $citations->get());
+        return generateCollectionResponse($request, $type, $data);
     }
 
     /**
@@ -275,9 +403,11 @@ class CitationsController extends Controller
         }
         
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
+        $data = $citations->get();
+        $data = $this->applyFiltersToCollection($request, $data);
 
         // generate the response and send everything back
-        return generateCollectionResponse($request, $type, $citations->get());
+        return generateCollectionResponse($request, $type, $data);
     }
 
     /**
@@ -293,8 +423,11 @@ class CitationsController extends Controller
         $citations = $this->getBaseCitationQuery();
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
+        $data = $citations->get();
+        $data = $this->applyFiltersToCollection($request, $data);
+
         // generate the response and send everything back
-        return generateCollectionResponse($request, $type, $citations->get());
+        return generateCollectionResponse($request, $type, $data);
     }
 
     /**
