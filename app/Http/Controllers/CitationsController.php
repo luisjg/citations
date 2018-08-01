@@ -336,6 +336,7 @@ class CitationsController extends Controller
             // create the citation object before we start attaching stuff to it
             $citation = Citation::create([
                 'citation_id' => "citations:{$nextId}",
+                'entities_id' => $request->input('entities_id'),
                 'citation_type' => $request->input('type'),
                 'collaborators' => $request->input('collaborators'),
                 'citation_text' => $request->input('citation_text'),
@@ -348,6 +349,8 @@ class CitationsController extends Controller
                 'abstract' => $request->input("{$metaKey}.abstract"),
                 'book_title' => $request->input("{$metaKey}.book_title"),
                 'journal' => $request->input("{$metaKey}.journal"),
+                'degree_type' => $request->input("{$metaKey}.degree_type"),
+                'degree_program' => $request->input("{$metaKey}.degree_program"),
             ]);
 
             // create the published metadata
@@ -372,6 +375,8 @@ class CitationsController extends Controller
             if($request->filled($docKey)) {
                 $citation->document()->create([
                     'doi' => $request->input("{$docKey}.doi"),
+                    'issn' => $request->input("{$docKey}.issn"),
+                    'isbn' => $request->input("{$docKey}.isbn"),
                     'handle' => $request->input("{$docKey}.handle"),
                     'url' => $request->input("{$docKey}.url"),
                 ]);
@@ -807,6 +812,7 @@ class CitationsController extends Controller
         // array based upon the attributes of the sub-objects
         $possibleInput = [
             // basic citation data (attributes not in sub-objects)
+            'entities_id',
             'collaborators',
             'citation_text',
             'note',
@@ -816,6 +822,8 @@ class CitationsController extends Controller
                 'abstract',
                 'book_title',
                 'journal',
+                'degree_type',
+                'degree_program',
             ],
             // published metadata
             $pubMetaKey => [
@@ -834,6 +842,8 @@ class CitationsController extends Controller
             // citation document
             $docKey => [
                 'doi',
+                'issn',
+                'isbn',
                 'handle',
                 'url',
             ],
