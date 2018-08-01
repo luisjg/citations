@@ -132,6 +132,32 @@ class CitationsController extends Controller
                 ->take($count);
         }
 
+        // if we have a provided "date" filter (filter records by a specific date)
+        // we need to take into account the pieces of the filter:
+        // YYYY-MM-DD (3 parts)
+        // YYYY-MM (2 parts)
+        // YYYY (1 part)
+        if($request->has('date')) {
+            $parts = explode('-', $request->input('date'));
+            $condition = "";
+            if(count($parts) == 3) {
+                $condition = implode('-', $parts);
+            }
+            else if(count($parts) == 2) {
+                $condition = $parts[0] . '-' . $parts[1];
+            }
+            else if(count($parts) == 1) {
+                $condition = $parts[0];
+            }
+
+            // if we got a condition out of that, then let's apply a filter; we are
+            // using a fuzzy search in order to allow for multiple cases that match
+            // each condition (like 2018-02 also matching the value 2018-02-05).
+            $query = $query->whereHas('publishedMetadata', function($q) use ($condition) {
+                $q->where('date', 'LIKE', $condition . '%');
+            });
+        }
+
         return $query;
     }
 
