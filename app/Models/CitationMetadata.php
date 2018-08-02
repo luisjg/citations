@@ -16,6 +16,8 @@ class CitationMetadata extends Model
 		'abstract',
 		'book_title',
 		'journal',
+		'degree_type',
+		'degree_program',
 	];
 
 	protected $hidden = ['citation_id', 'created_at', 'updated_at'];

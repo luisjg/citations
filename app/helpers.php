@@ -2,6 +2,8 @@
 
 use App\Formatters\IEEE\IEEEFormatter;
 
+use Carbon\Carbon;
+
 /**
  * Generates a response array based upon a given static message as well as an
  * optional response code and optional success value.

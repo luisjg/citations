@@ -13,6 +13,9 @@ use App\Exceptions\InvalidPayloadTypeException;
 use App\Exceptions\InvalidRequestException;
 use App\Exceptions\NoDataException;
 
+use Carbon\Carbon;
+
+use Closure;
 use DB;
 use Log;
 
@@ -124,15 +127,218 @@ class CitationsController extends Controller
             });
         }
 
-        // if we have a provided "recent" size (limit number of records to the
-        // most recent X citations) then apply that
-        if($request->has('recent')) {
-            $count = $request->input('recent');
-            $query = $query->orderBy('id', 'DESC')
-                ->take($count);
+        // if we have a provided "date" filter (filter records by a specific date)
+        // we need to take into account the pieces of the filter:
+        // YYYY-MM-DD (3 parts)
+        // YYYY-MM (2 parts)
+        // YYYY (1 part)
+        if($request->has('date')) {
+            $parts = explode('-', $request->input('date'));
+            $condition = "";
+            if(count($parts) == 3) {
+                $condition = implode('-', $parts);
+            }
+            else if(count($parts) == 2) {
+                $condition = $parts[0] . '-' . $parts[1];
+            }
+            else if(count($parts) == 1) {
+                $condition = $parts[0];
+            }
+
+            // if we got a condition out of that, then let's apply a filter; we are
+            // using a fuzzy search in order to allow for multiple cases that match
+            // each condition (like 2018-02 also matching the value 2018-02-05).
+            $query = $query->whereHas('publishedMetadata', function($q) use ($condition) {
+                $q->where('date', 'LIKE', $condition . '%');
+            });
         }
 
         return $query;
+    }
+
+    /**
+     * Sorts a collection using the given callback function along with an optional
+     * direction. Returns a new Collection.
+     *
+     * @param Collection $data The Collection to sort
+     * @param Closure $callback The callback function to execute
+     * @param string $direction Optional sorting direction; default is ASC
+     *
+     * @return Collection
+     */
+    protected function sortCollectionByCallback($data, Closure $callback, $direction="ASC") {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // make sure we have a valid sorting direction; otherwise, default to
+        // ascending
+        $directions = ['ASC', 'DESC'];
+        if(!in_array($direction, $directions)) {
+            $direction = "ASC";
+        }
+
+        // depending on the direction we have to invoke a different method on
+        // the collection itself
+        if($direction == 'ASC') {
+            $data = $data->sortBy($callback);
+        }
+        else
+        {
+            $data = $data->sortByDesc($callback);
+        }
+
+        return $data->values();
+    }
+
+    /**
+     * Sorts the citations collection by author record using the specified field
+     * in the User model for comparison. An optional direction can also be
+     * specified. Returns a new Collection.
+     *
+     * @param Collection $data The data collection
+     * @param string $field The field by which to sort
+     * @param string $direction Optional sort direction; default is ASC
+     *
+     * @return Collection
+     */
+    protected function sortCollectionByAuthor($data, $field, $direction="ASC") {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // our sorting callback will be the same regardless of direction
+        $callback = function($citation) use ($field) {
+            $author = $citation->members->where('pivot.role_position', 'author')
+                ->first();
+            if(!empty($author)) {
+                return $author->$field;
+            }
+            return "";
+        };
+
+        return $this->sortCollectionByCallback($data, $callback, $direction);
+    }
+
+    /**
+     * Sorts the citations collection by published date. An optional direction
+     * can also be specified. Returns a new Collection.
+     *
+     * @param Collection $data The data collection
+     * @param string $direction Optional sort direction; default is ASC
+     *
+     * @return Collection
+     */
+    protected function sortCollectionByDate($data, $direction="ASC") {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // our sorting callback will be the same regardless of direction
+        $callback = function($citation) {
+            if(!empty($citation->publishedMetadata)) {
+                $date = $citation->publishedMetadata->date;
+
+                // depending on how the date is structured, we can generate the
+                // Carbon instance differently:
+                // YYYY-MM-DD (3 parts)
+                // YYYY-MM (2 parts)
+                // YYYY (1 part)
+                $parts = explode('-', $date);
+                if(count($parts) == 3) {
+                    return Carbon::createFromDate($parts[0], $parts[1], $parts[2]);
+                }
+                else if(count($parts) == 2) {
+                    return Carbon::createFromDate($parts[0], $parts[1], 1);
+                }
+                else if(count($parts) == 1) {
+                    return Carbon::createFromDate($parts[0], 1, 1);
+                }
+            }
+            // invalid date, so use UNIX epoch
+            return Carbon::createFromDate(1970, 1, 1);
+        };
+
+        return $this->sortCollectionByCallback($data, $callback, $direction);
+    }
+
+    /**
+     * Applies a set of request filters to the resultant Collection generated
+     * by the citation query methods and returns a new Collection. This method
+     * will typically perform sorting or additional filtering that cannot be
+     * done reliably at the database layer.
+     *
+     * @param Request $request The request to check
+     * @param Collection $data The Collection instance to filter
+     *
+     * @return Collection
+     */
+    protected function applyFiltersToCollection(Request $request, $data) {
+        // if there is nothing in the collection, just return back the instance
+        // before attempting to do anything to it
+        if($data->count() == 0) {
+            return $data;
+        }
+
+        // should we limit our data by a recent number of records?
+        // if we have a provided "recent" size (limit number of records to the
+        // most recent X citations) then apply that
+        if($request->has('recent')) {
+            $count = (int)$request->input('recent');
+            
+            // sort the records in descending order first so we can get the
+            // most recent records first
+            $data = $this->sortCollectionByDate($data, 'DESC');
+
+            // now grab the requested number of items to reduce the existing
+            // Collection
+            $data = $data->take($count);
+        }
+
+        // should we sort?
+        if($request->has('sortBy')) {
+            $sortBy = "";
+            $sortDir = "ASC";
+
+            // we can sort either by date or the last name of the author
+            if($request->input('sortBy') == "date") {
+                $sortBy = "date";
+            }
+            else if($request->input('sortBy') == "author_lastname") {
+                $sortBy = "author_lastname";
+            }
+
+            // we can sort either ascending or descending order; default is
+            // ascending order
+            if($request->input('sortDir') == 'DESC') {
+                $sortDir = "DESC";
+            }
+
+            // we should sort only if we have a valid sort option that has been
+            // specified
+            if(!empty($sortBy)) {
+                if($sortBy == "author_lastname") {
+                    $data = $this->sortCollectionByAuthor($data, 'last_name', $sortDir);
+                }
+                else if($sortBy == "date") {
+                    $data = $this->sortCollectionByDate($data, $sortDir);
+                }
+            }
+        }
+
+        // should we place a limit on the number of retrieved records? Differs
+        // from "recent" in that this is a limit applied after all other filters.
+        if($request->has('limit')) {
+            $data = $data->take((int)$request->input('limit'));
+        }
+
+        return $data;
     }
 
     /**
@@ -225,9 +431,11 @@ class CitationsController extends Controller
         }
 
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
+        $data = $citations->get();
+        $data = $this->applyFiltersToCollection($request, $data);
 
         // generate the response and send everything back
-        return generateCollectionResponse($request, $type, $citations->get());
+        return generateCollectionResponse($request, $type, $data);
     }
 
     /**
@@ -249,9 +457,11 @@ class CitationsController extends Controller
         }
         
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
+        $data = $citations->get();
+        $data = $this->applyFiltersToCollection($request, $data);
 
         // generate the response and send everything back
-        return generateCollectionResponse($request, $type, $citations->get());
+        return generateCollectionResponse($request, $type, $data);
     }
 
     /**
@@ -267,8 +477,11 @@ class CitationsController extends Controller
         $citations = $this->getBaseCitationQuery();
         $citations = $this->applyFiltersToBaseQuery($request, $type, $citations);
 
+        $data = $citations->get();
+        $data = $this->applyFiltersToCollection($request, $data);
+
         // generate the response and send everything back
-        return generateCollectionResponse($request, $type, $citations->get());
+        return generateCollectionResponse($request, $type, $data);
     }
 
     /**
@@ -336,6 +549,7 @@ class CitationsController extends Controller
             // create the citation object before we start attaching stuff to it
             $citation = Citation::create([
                 'citation_id' => "citations:{$nextId}",
+                'entities_id' => $request->input('entities_id'),
                 'citation_type' => $request->input('type'),
                 'collaborators' => $request->input('collaborators'),
                 'citation_text' => $request->input('citation_text'),
@@ -348,6 +562,8 @@ class CitationsController extends Controller
                 'abstract' => $request->input("{$metaKey}.abstract"),
                 'book_title' => $request->input("{$metaKey}.book_title"),
                 'journal' => $request->input("{$metaKey}.journal"),
+                'degree_type' => $request->input("{$metaKey}.degree_type"),
+                'degree_program' => $request->input("{$metaKey}.degree_program"),
             ]);
 
             // create the published metadata
@@ -372,6 +588,8 @@ class CitationsController extends Controller
             if($request->filled($docKey)) {
                 $citation->document()->create([
                     'doi' => $request->input("{$docKey}.doi"),
+                    'issn' => $request->input("{$docKey}.issn"),
+                    'isbn' => $request->input("{$docKey}.isbn"),
                     'handle' => $request->input("{$docKey}.handle"),
                     'url' => $request->input("{$docKey}.url"),
                 ]);
@@ -807,6 +1025,7 @@ class CitationsController extends Controller
         // array based upon the attributes of the sub-objects
         $possibleInput = [
             // basic citation data (attributes not in sub-objects)
+            'entities_id',
             'collaborators',
             'citation_text',
             'note',
@@ -816,6 +1035,8 @@ class CitationsController extends Controller
                 'abstract',
                 'book_title',
                 'journal',
+                'degree_type',
+                'degree_program',
             ],
             // published metadata
             $pubMetaKey => [
@@ -834,6 +1055,8 @@ class CitationsController extends Controller
             // citation document
             $docKey => [
                 'doi',
+                'issn',
+                'isbn',
                 'handle',
                 'url',
             ],
