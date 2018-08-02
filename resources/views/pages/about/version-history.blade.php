@@ -13,6 +13,7 @@
     <strong>New Features:</strong>
     <ol>
       <li>Ability to filter the results of any query by year, month, or day</li>
+      <li>Ability to limit the number of results of any multi-result query</li>
       <li>Ability to sort the results of any query by author last name</li>
       <li>Ability to sort the results of any query by date</li>
     </ol>

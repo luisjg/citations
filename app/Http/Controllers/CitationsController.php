@@ -127,14 +127,6 @@ class CitationsController extends Controller
             });
         }
 
-        // if we have a provided "recent" size (limit number of records to the
-        // most recent X citations) then apply that
-        if($request->has('recent')) {
-            $count = $request->input('recent');
-            $query = $query->orderBy('id', 'DESC')
-                ->take($count);
-        }
-
         // if we have a provided "date" filter (filter records by a specific date)
         // we need to take into account the pieces of the filter:
         // YYYY-MM-DD (3 parts)
@@ -294,6 +286,21 @@ class CitationsController extends Controller
             return $data;
         }
 
+        // should we limit our data by a recent number of records?
+        // if we have a provided "recent" size (limit number of records to the
+        // most recent X citations) then apply that
+        if($request->has('recent')) {
+            $count = (int)$request->input('recent');
+            
+            // sort the records in descending order first so we can get the
+            // most recent records first
+            $data = $this->sortCollectionByDate($data, 'DESC');
+
+            // now grab the requested number of items to reduce the existing
+            // Collection
+            $data = $data->take($count);
+        }
+
         // should we sort?
         if($request->has('sortBy')) {
             $sortBy = "";
@@ -323,6 +330,12 @@ class CitationsController extends Controller
                     $data = $this->sortCollectionByDate($data, $sortDir);
                 }
             }
+        }
+
+        // should we place a limit on the number of retrieved records? Differs
+        // from "recent" in that this is a limit applied after all other filters.
+        if($request->has('limit')) {
+            $data = $data->take((int)$request->input('limit'));
         }
 
         return $data;

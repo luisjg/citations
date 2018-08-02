@@ -111,6 +111,11 @@
   <li><a href="{!! url('1.1/departments/189/citations?recent=20') !!}">{!! url('1.1/departments/189/citations?recent=20') !!}</a></li>
   <li><a href="{!! url('1.1/colleges/52/citations?recent=20') !!}">{!! url('1.1/colleges/52/citations?recent=20') !!}</a></li>
 </ul>
+<strong>Limit Number of Citations Retrieved</strong>
+<ul>
+  <li><a href="{!! url('1.1/departments/189/citations?limit=10') !!}">{!! url('1.1/departments/189/citations?limit=10') !!}</a></li>
+  <li><a href="{!! url('1.1/colleges/52/citations?limit=10') !!}">{!! url('1.1/colleges/52/citations?limit=10') !!}</a></li>
+</ul>
 <strong>Citations per Department/College by Date</strong>
 <ul>
   <li><a href="{!! url('1.1/departments/189/citations/theses?date=2014') !!}">{!! url('1.1/departments/189/citations/theses?date=2014') !!}</a></li>
