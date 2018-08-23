@@ -11,7 +11,8 @@
         "csun-metalab/lumen-proxypass": "^1.1",
         "csun-metalab/lumen-force-https": "^1.0",
         "guzzlehttp/guzzle": "~6.0",
-        "csun-metalab/laravel-guzzle": "^1.0"
+        "csun-metalab/laravel-guzzle": "^1.0",
+        "barryvdh/laravel-cors": "^0.11.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

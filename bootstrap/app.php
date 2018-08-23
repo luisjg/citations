@@ -59,14 +59,6 @@ $app->singleton(
 |
 */
 
-// $app->middleware([
-//    App\Http\Middleware\ExampleMiddleware::class
-// ]);
-
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
-
 $app->middleware([
    CSUNMetaLab\LumenForceHttps\Http\Middleware\ForceHttps::class,
    App\Http\Middleware\APIVersioning::class,
@@ -74,6 +66,7 @@ $app->middleware([
 
 $app->routeMiddleware([
     'api_auth' => App\Http\Middleware\APIAuthorization::class,
+    'cors' => \Barryvdh\Cors\HandleCors::class,
 ]);
 
 /*
@@ -87,10 +80,6 @@ $app->routeMiddleware([
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
-
 $app->configure('proxypass');
 $app->register(CSUNMetaLab\LumenProxyPass\Providers\ProxyPassServiceProvider::class);
 
@@ -100,6 +89,9 @@ $app->register(CSUNMetaLab\LumenForceHttps\Providers\ForceHttpsServiceProvider::
 $app->configure('guzzle');
 
 $app->configure('scopus');
+
+$app->configure('cors');
+$app->register(Barryvdh\Cors\ServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -122,7 +114,7 @@ $app->router->group([
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
     'prefix' => '1.0',
-    'middleware' => 'api_auth',
+    'middleware' => ['api_auth', 'cors'],
 ], function ($router) {
     require __DIR__.'/../routes/1.0.php';
 });
@@ -131,7 +123,7 @@ $app->router->group([
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
     'prefix' => '1.1',
-    'middleware' => 'api_auth',
+    'middleware' => ['api_auth', 'cors'],
 ], function ($router) {
     require __DIR__.'/../routes/1.1.php';
 });
