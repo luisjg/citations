@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  webserver:
+    container_name: citations
+    image: csunmetalab/api:latest
+    ports:
+      - '8080:80'
+    volumes:
+      - .:/var/www/html
+
+  composer:
+    restart: 'no'
+    container_name: citations_composer
+    image: composer:latest
+    command: install
+    volumes:
+      - .:/app/
