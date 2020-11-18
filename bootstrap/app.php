@@ -60,11 +60,11 @@ $app->singleton(
 $app->middleware([
    CSUNMetaLab\LumenForceHttps\Http\Middleware\ForceHttps::class,
    App\Http\Middleware\APIVersioning::class,
+   \Fruitcake\Cors\HandleCors::class,
 ]);
 
 $app->routeMiddleware([
     'api_auth' => App\Http\Middleware\APIAuthorization::class,
-    'cors' => \Barryvdh\Cors\HandleCors::class,
 ]);
 
 /*
@@ -89,7 +89,6 @@ $app->configure('guzzle');
 $app->configure('scopus');
 
 $app->configure('cors');
-$app->register(Barryvdh\Cors\ServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
