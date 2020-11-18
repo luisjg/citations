@@ -10,7 +10,7 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function testExample()
+    public function testExample() :void
     {
         $this->get('/');
 
