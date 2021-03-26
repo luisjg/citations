@@ -30,7 +30,6 @@
       "type": "public",
       "members": [
         {
-          "user_id": "members:100010571",
           "orcid": null,
           "email": "adele.gottfried@csun.edu",
           "display_name": "Adele E Gottfried",
@@ -189,7 +188,7 @@ $(document).ready(function() {
       $('#citation-results').append('&lt;p&gt;' + article.metadata.title + ' - ' + article.metadata.journal + '&lt;/p&gt;');
 
     });
-    
+
   });
 
 });
@@ -232,7 +231,7 @@ import json
 #query all article citations
 url = u'{!! url('1.0/citations/articles') !!}'
 
-#try to read the data 
+#try to read the data
 try:
    u = urllib2.urlopen(url)
    data = u.read()

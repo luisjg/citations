@@ -9,6 +9,9 @@ class CitationMember extends Model
 	protected $table = "nemo.memberships";
 	protected $primaryKey = "individuals_id";
 	public $incrementing = false;
+	protected $hidden = [
+	    'individuals_id'
+    ];
 
 	/**
 	 * Query scope to filter records by the citation ID and without having
