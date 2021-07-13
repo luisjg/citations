@@ -38,20 +38,8 @@
 </div>
 
 @include('layouts.partials.csun-footer')
-@include('layouts.partials.metalab-footer')
 <script src="{{ url('/js/metaphor.js') }}"></script>
 <script src="{{ url('/js/run_prettify.js') }}"></script>
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
-
-<!--
-  __  __   ___   _____     _
- |  \/  | | __| |_   _|   /_\       Explore Learn Go Beyond
- | |\/| | | _|    | |    / _ \      https://www.metalab.csun.edu/
- |_|  |_| |___|   |_|   /_/ \_\
-    _       _        _     ___
-  _| |_    | |      /_\   | _ )
- |_   _|   | |__   / _ \  | _ \
-   |_|     |____| /_/ \_\ |___/
--->
 </body>
 </html>
