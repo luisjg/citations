@@ -10,7 +10,7 @@ class User extends Model
 	protected $primaryKey = "user_id";
 	public $incrementing = false;
 
-	protected $hidden = ['scopus_id'];
+	protected $hidden = ['user_id', 'scopus_id'];
 
 	public function citations() {
 		return $this->belongsToMany('App\Citation', 'nemo.memberships', 'individuals_id', 'parent_entities_id')
