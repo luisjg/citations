@@ -2,11 +2,11 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-try {
-    (new Dotenv\Dotenv(__DIR__.'/../'))->load();
-} catch (Dotenv\Exception\InvalidPathException $e) {
-    //
-}
+(new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
+    dirname(__DIR__)
+))->bootstrap();
+
+date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 
 /*
 |--------------------------------------------------------------------------
@@ -62,11 +62,11 @@ $app->singleton(
 $app->middleware([
    CSUNMetaLab\LumenForceHttps\Http\Middleware\ForceHttps::class,
    App\Http\Middleware\APIVersioning::class,
+   \Fruitcake\Cors\HandleCors::class,
 ]);
 
 $app->routeMiddleware([
     'api_auth' => App\Http\Middleware\APIAuthorization::class,
-    'cors' => \Barryvdh\Cors\HandleCors::class,
 ]);
 
 /*
@@ -82,16 +82,12 @@ $app->routeMiddleware([
 
 $app->configure('proxypass');
 $app->register(CSUNMetaLab\LumenProxyPass\Providers\ProxyPassServiceProvider::class);
-
 $app->configure('forcehttps');
 $app->register(CSUNMetaLab\LumenForceHttps\Providers\ForceHttpsServiceProvider::class);
-
 $app->configure('guzzle');
-
 $app->configure('scopus');
-
 $app->configure('cors');
-$app->register(Barryvdh\Cors\ServiceProvider::class);
+$app->register(Illuminate\Database\Eloquent\LegacyFactoryServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
